@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, send_from_directory
 from kubernetes import client, config
+from datetime import datetime, timezone
 import yaml
 import os
 
@@ -24,13 +25,21 @@ def get_namespaces():
 
 @app.route('/resources/<namespace>', methods=['GET'])
 def get_resources(namespace):
-    v1 = client.AppsV1Api()
-    statefulsets = v1.list_namespaced_stateful_set(namespace=namespace)
-    deployments = v1.list_namespaced_deployment(namespace=namespace)
+    v1 = client.CoreV1Api()
+    apps_v1 = client.AppsV1Api()
+
+    deployments = apps_v1.list_namespaced_deployment(namespace).items
+    statefulsets = apps_v1.list_namespaced_stateful_set(namespace).items
+    services = v1.list_namespaced_service(namespace).items
+    pvcs = v1.list_namespaced_persistent_volume_claim(namespace).items
+
     resources = {
-        'statefulsets': [{'name': ss.metadata.name, 'replicas': ss.status.replicas, 'readyReplicas': ss.status.ready_replicas} for ss in statefulsets.items],
-        'deployments': [{'name': dp.metadata.name, 'replicas': dp.status.replicas, 'readyReplicas': dp.status.ready_replicas} for dp in deployments.items]
+        "deployments": [{"name": d.metadata.name, "replicas": d.status.replicas, "readyReplicas": d.status.ready_replicas} for d in deployments],
+        "statefulsets": [{"name": s.metadata.name, "replicas": s.status.replicas, "readyReplicas": s.status.ready_replicas} for s in statefulsets],
+        "services": [{"name": svc.metadata.name} for svc in services],
+        "pvcs": [{"name": pvc.metadata.name} for pvc in pvcs]
     }
+
     return jsonify(resources)
 
 @app.route('/scale', methods=['POST'])
@@ -60,6 +69,37 @@ def log_message():
     log = data['log']
     print(f"Log from frontend: {log}")
     return jsonify({'message': 'Log received'}), 200
+
+@app.route('/pods/<namespace>/<resource_type>/<resource_name>', methods=['GET'])
+def get_pods(namespace, resource_type, resource_name):
+    v1 = client.CoreV1Api()
+    label_selector = f"app={resource_name}"
+    pods = v1.list_namespaced_pod(namespace, label_selector=label_selector).items
+    pod_list = []
+    for pod in pods:
+        creation_time = pod.metadata.creation_timestamp
+        age = datetime.now(timezone.utc) - creation_time
+        pod_list.append({
+            "name": pod.metadata.name,
+            "status": pod.status.phase,
+            "age": str(age).split('.')[0]  # Format age as "days, hours:minutes:seconds"
+        })
+    return jsonify(pod_list)
+
+@app.route('/logs/<namespace>/<pod_name>', methods=['GET'])
+def get_pod_logs(namespace, pod_name):
+    v1 = client.CoreV1Api()
+    try:
+        logs = v1.read_namespaced_pod_log(name=pod_name, namespace=namespace)
+        last_20_lines = '\n'.join(logs.splitlines()[-20:])
+        return jsonify({"logs": last_20_lines})
+    except client.exceptions.ApiException as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(port=8080, debug=True)

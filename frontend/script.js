@@ -54,7 +54,7 @@ function fetchResources(namespace) {
                 const loading = replicas !== readyReplicas ? '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' : '';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${ss.name}</td>
+                    <td><a href="#" onclick="fetchPods('${namespace}', 'statefulset', '${ss.name}')">${ss.name}</a></td>
                     <td>${replicas} ${loading}</td>
                     <td>
                         <label class="switch">
@@ -72,7 +72,7 @@ function fetchResources(namespace) {
                 const loading = replicas !== readyReplicas ? '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' : '';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${dp.name}</td>
+                    <td><a href="#" onclick="fetchPods('${namespace}', 'deployment', '${dp.name}')">${dp.name}</a></td>
                     <td>${replicas} ${loading}</td>
                     <td>
                         <label class="switch">
@@ -153,3 +153,51 @@ function handleSwitchChange(name, resourceType, checked) {
         });
     }
 }
+
+function fetchPods(namespace, resourceType, resourceName) {
+    fetch(`/pods/${namespace}/${resourceType}/${resourceName}`)
+        .then(response => response.json())
+        .then(data => {
+            const podsList = document.getElementById('podsList');
+            podsList.innerHTML = ''; // Clear existing list
+            data.forEach(pod => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${pod.name}</td>
+                    <td>${pod.status}</td>
+                    <td>${pod.age}</td>
+                    <td><a href="#" onclick="fetchPodLogs('${namespace}', '${pod.name}')">Logs</a></td>
+                `;
+                podsList.appendChild(tr);
+            });
+            $('#podsModal').modal('show');
+        })
+        .catch(error => {
+            console.error('Error fetching pods:', error);
+            sendLogToBackend(`Error fetching pods: ${error}`);
+        });
+}
+
+let logInterval;
+
+function fetchPodLogs(namespace, podName) {
+    clearInterval(logInterval); // Clear any existing interval
+    $('#logsModal').modal('show');
+    logInterval = setInterval(() => {
+        fetch(`/logs/${namespace}/${podName}`)
+            .then(response => response.json())
+            .then(data => {
+                const podLogs = document.getElementById('podLogs');
+                podLogs.textContent = data.logs || 'No logs available';
+            })
+            .catch(error => {
+                console.error('Error fetching pod logs:', error);
+                sendLogToBackend(`Error fetching pod logs: ${error}`);
+            });
+    }, 1000); // Update logs every second
+}
+
+// Clear the interval when the logs modal is closed
+$('#logsModal').on('hidden.bs.modal', function () {
+    clearInterval(logInterval);
+});

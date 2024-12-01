@@ -163,3 +163,19 @@ input:checked + .slider:before {
     content: "";
     background-image: url('viper.webp'); /* Replace with the path to the on state hero icon */
 }
+
+/* 3D Effects for Modals */
+.modal-dialog-zoom {
+    transform: scale(0.7);
+    transition: transform 0.3s ease-in-out;
+}
+
+.modal.show .modal-dialog-zoom {
+    transform: scale(1);
+}
+
+/* Wrap text in the log modal */
+.text-wrap {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}

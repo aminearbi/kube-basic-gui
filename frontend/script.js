@@ -45,8 +45,12 @@ function fetchResources(namespace) {
             sendLogToBackend(`Fetched resources: ${JSON.stringify(data)}`);
             const statefulsetsList = document.getElementById('statefulsets');
             const deploymentsList = document.getElementById('deployments');
+            const servicesList = document.getElementById('services');
+            const cronjobsList = document.getElementById('cronjobs');
             statefulsetsList.innerHTML = '';
             deploymentsList.innerHTML = '';
+            servicesList.innerHTML = '';
+            cronjobsList.innerHTML = '';
 
             data.statefulsets.forEach(ss => {
                 const replicas = ss.replicas || 0;
@@ -83,12 +87,173 @@ function fetchResources(namespace) {
                 `;
                 deploymentsList.appendChild(tr);
             });
+
+            data.services.forEach(svc => {
+                const ports = svc.ports.map(p => `${p.port}/${p.protocol}`).join(', ');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${svc.name}</td>
+                    <td>${svc.type}</td>
+                    <td>${svc.clusterIP}</td>
+                    <td>${ports}</td>
+                `;
+                servicesList.appendChild(tr);
+            });
+
+            data.cronjobs.forEach(cj => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><a href="#" onclick="fetchJobs('${namespace}', '${cj.name}')">${cj.name}</a></td>
+                    <td>
+                        <span id="schedule-${cj.name}">${cronToHumanReadable(cj.schedule)}</span>
+                        <button class="btn btn-secondary btn-sm" onclick="editCronJob('${namespace}', '${cj.name}', '${cj.schedule}')">Edit</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" onclick="fetchJobs('${namespace}', '${cj.name}')">View Jobs</button>
+                    </td>
+                `;
+                cronjobsList.appendChild(tr);
+            });
         })
         .catch(error => {
             console.error('Error fetching resources:', error);
             sendLogToBackend(`Error fetching resources: ${error}`);
         });
 }
+
+function cronToHumanReadable(cron) {
+    const parts = cron.split(' ');
+    const minute = parts[0];
+    const hour = parts[1];
+    const dayOfMonth = parts[2];
+    const month = parts[3];
+    const dayOfWeek = parts[4];
+
+    const humanReadable = `At ${minute} minute(s) past ${hour} hour(s) on day ${dayOfMonth} of month ${month}, on ${dayOfWeek}`;
+    return humanReadable;
+}
+
+function humanReadableToCron(humanReadable) {
+    const parts = humanReadable.split(' ');
+    const minute = parts[1];
+    const hour = parts[5];
+    const dayOfMonth = parts[9];
+    const month = parts[13];
+    const dayOfWeek = parts[16];
+
+    const cron = `${minute} ${hour} ${dayOfMonth} ${month} ${dayOfWeek}`;
+    return cron;
+}
+
+function editCronJob(namespace, cronJobName, currentSchedule) {
+    $('#editCronJobModal').modal('show');
+    document.getElementById('cronJobSchedule').value = cronToHumanReadable(currentSchedule);
+    document.getElementById('editCronJobForm').onsubmit = function(event) {
+        event.preventDefault();
+        const newSchedule = humanReadableToCron(document.getElementById('cronJobSchedule').value);
+        updateCronJob(namespace, cronJobName, newSchedule);
+    };
+}
+
+function updateCronJob(namespace, cronJobName, newSchedule) {
+    fetch(`/update-cronjob`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ namespace, cronJobName, newSchedule })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.message);
+        sendLogToBackend(`Updated CronJob ${cronJobName} in ${namespace} to schedule ${newSchedule}`);
+        document.getElementById(`schedule-${cronJobName}`).textContent = cronToHumanReadable(newSchedule);
+        $('#editCronJobModal').modal('hide');
+    })
+    .catch(error => {
+        console.error('Error updating CronJob:', error);
+        sendLogToBackend(`Error updating CronJob: ${error}`);
+    });
+}
+
+function fetchJobs(namespace, cronJobName) {
+    fetch(`/jobs/${namespace}/${cronJobName}`)
+        .then(response => response.json())
+        .then(data => {
+            const jobsList = document.getElementById('jobsList');
+            jobsList.innerHTML = ''; // Clear existing list
+            data.forEach(job => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${job.name}</td>
+                    <td>${job.status}</td>
+                    <td>${job.age}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="terminateJob('${namespace}', '${job.name}', '${cronJobName}')">Terminate</button>
+                    </td>
+                `;
+                jobsList.appendChild(tr);
+            });
+            $('#jobsModal').modal('show');
+        })
+        .catch(error => {
+            console.error('Error fetching jobs:', error);
+            sendLogToBackend(`Error fetching jobs: ${error}`);
+        });
+}
+
+function terminateJob(namespace, jobName, cronJobName) {
+    fetch(`/terminate-job`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ namespace, jobName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.message);
+        sendLogToBackend(`Terminated job ${jobName} in ${namespace}`);
+        fetchJobs(namespace, cronJobName); // Refresh the jobs list
+    })
+    .catch(error => {
+        console.error('Error terminating job:', error);
+        sendLogToBackend(`Error terminating job: ${error}`);
+    });
+}
+
+
+function editCronJob(namespace, cronJobName, currentSchedule) {
+    $('#editCronJobModal').modal('show');
+    document.getElementById('cronJobSchedule').value = currentSchedule;
+    document.getElementById('editCronJobForm').onsubmit = function(event) {
+        event.preventDefault();
+        const newSchedule = document.getElementById('cronJobSchedule').value;
+        updateCronJob(namespace, cronJobName, newSchedule);
+    };
+}
+
+function updateCronJob(namespace, cronJobName, newSchedule) {
+    fetch(`/update-cronjob`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ namespace, cronJobName, newSchedule })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.message);
+        sendLogToBackend(`Updated CronJob ${cronJobName} in ${namespace} to schedule ${newSchedule}`);
+        document.getElementById(`schedule-${cronJobName}`).textContent = newSchedule;
+        $('#editCronJobModal').modal('hide');
+    })
+    .catch(error => {
+        console.error('Error updating CronJob:', error);
+        sendLogToBackend(`Error updating CronJob: ${error}`);
+    });
+}
+
 
 function fetchResourcesPeriodically() {
     const namespace = document.getElementById('selected-namespace').textContent;
@@ -188,7 +353,23 @@ function fetchPodLogs(namespace, podName) {
             .then(response => response.json())
             .then(data => {
                 const podLogs = document.getElementById('podLogs');
-                podLogs.textContent = data.logs || 'No logs available';
+                podLogs.innerHTML = ''; // Clear existing logs
+                const logLines = data.logs.split('\n');
+                logLines.forEach(line => {
+                    const logEntry = document.createElement('div');
+                    const dateTimeRegex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/;
+                    const dateTimeMatch = line.match(dateTimeRegex);
+                    if (dateTimeMatch) {
+                        const dateTimeSpan = document.createElement('span');
+                        dateTimeSpan.className = 'log-datetime';
+                        dateTimeSpan.textContent = dateTimeMatch[0];
+                        logEntry.appendChild(dateTimeSpan);
+                        logEntry.appendChild(document.createTextNode(line.replace(dateTimeMatch[0], '')));
+                    } else {
+                        logEntry.textContent = line;
+                    }
+                    podLogs.appendChild(logEntry);
+                });
             })
             .catch(error => {
                 console.error('Error fetching pod logs:', error);

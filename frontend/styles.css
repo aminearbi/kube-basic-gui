@@ -31,8 +31,8 @@ body {
 .switch {
     position: relative;
     display: inline-block;
-    width: 80px; /* Adjusted width */
-    height: 40px; /* Adjusted height */
+    width: 60px;
+    height: 34px;
 }
 
 .switch input {
@@ -48,39 +48,31 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ff0000; /* Default to red */
+    background-color: #ff4d4d; /* Red when off */
     transition: .4s;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+    border-radius: 34px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
 
 .slider:before {
     position: absolute;
     content: "";
-    height: 36px; /* Adjusted height */
-    width: 36px; /* Adjusted width */
-    left: 2px;
-    bottom: 2px;
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
     background-color: white;
     transition: .4s;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    background-size: cover; /* Ensure the icon fits within the button */
-    background-position: center; /* Center the icon */
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 input:checked + .slider {
-    background-color: #00ff00; /* Green when checked */
+    background-color: #4caf50; /* Green when on */
 }
 
 input:checked + .slider:before {
-    transform: translateX(40px); /* Adjusted translation */
-}
-
-.slider.round {
-    border-radius: 34px;
-}
-
-.slider.round:before {
-    border-radius: 50%;
+    transform: translateX(26px);
 }
 
 .fade-out {
@@ -97,6 +89,9 @@ input:checked + .slider:before {
     word-wrap: break-word;
     max-width: 200px; /* Adjust as needed */
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    white-space: normal; /* Allow text to wrap */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Add ellipsis for overflow text */
 }
 
 .table-container {
@@ -143,25 +138,22 @@ input:checked + .slider:before {
     color: #326ce5;
 }
 
+
+
 .btn-primary {
     background-color: #326ce5;
     border-color: #326ce5;
     color: white;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+    transform: scale(0.75); /* Reduce size by 25% */
+    padding: 10px 20px; /* Add padding for better visibility */
+    font-size: 1rem; /* Adjust font size */
 }
 
 .btn-primary:hover {
     background-color: #1e50b5;
     border-color: #1e50b5;
-}
-
-.switch .slider:before {
-    content: "";
-    background-image: url('axe.webp'); /* Replace with the path to the off state hero icon */
-}
-
-input:checked + .slider:before {
-    content: "";
-    background-image: url('viper.webp'); /* Replace with the path to the on state hero icon */
+    transform: scale(0.8); /* Slightly increase size on hover */
 }
 
 /* 3D Effects for Modals */
@@ -178,4 +170,43 @@ input:checked + .slider:before {
 .text-wrap {
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+/* Highlight date and time in logs */
+/* Common button styling */
+.btn {
+    background-color: #326ce5;
+    border-color: #326ce5;
+    color: white;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px 20px;
+    font-size: 1rem;
+    transition: transform 0.3s;
+}
+
+.btn:hover {
+    background-color: #1e50b5;
+    border-color: #1e50b5;
+    transform: scale(1.05);
+}
+
+/* Highlight date and time in logs */
+.log-timestamp {
+    color: #ff6347; /* Tomato color for highlighting */
+    font-weight: bold;
+}
+
+/* Ensure links are clickable */
+a {
+    color: #326ce5;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Style for the Edit button */
+.btn-secondary {
+    margin-left: 10px;
 }

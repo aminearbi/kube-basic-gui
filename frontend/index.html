@@ -105,8 +105,14 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id="logsModalBody">
-                    <!-- Logs will be displayed here -->
+                <div class="modal-body terminal">
+                    <div class="search-container">
+                        <input type="text" id="logSearch" class="form-control" placeholder="Search logs...">
+                    </div>
+                    <pre id="logsModalBody" class="terminal-content">
+                        <!-- Example log entry -->
+                        <span class="log-timestamp">2024-12-08 05:17:00</span> INFO: Starting Kubernetes pod...
+                    </pre>
                 </div>
             </div>
         </div>
@@ -125,6 +131,20 @@
 
         $(document).ready(function() {
             showSection('deployments-section'); // Show deployments section by default
+
+            // Search logs
+            $('#logSearch').on('input', function() {
+                var searchTerm = $(this).val().toLowerCase();
+                $('#logsModalBody').html(function(_, html) {
+                    return html.replace(/<mark>/g, '').replace(/<\/mark>/g, '');
+                });
+                if (searchTerm) {
+                    $('#logsModalBody').html(function(_, html) {
+                        var regex = new RegExp('(' + searchTerm + ')', 'gi');
+                        return html.replace(regex, '<mark>$1</mark>');
+                    });
+                }
+            });
         });
     </script>
 </body>

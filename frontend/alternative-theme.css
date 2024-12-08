@@ -1,6 +1,6 @@
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #EEF4ED; /* Honeydew */
+    background-color: #000814; /* Rich Black */
     margin: 0;
     padding: 0;
     display: flex;
@@ -9,7 +9,7 @@ body {
 }
 
 .sidebar {
-    background-color: #13315C; /* Space Cadet */
+    background-color: #000814; /* Rich Black */
     color: #ffffff;
     padding: 15px;
     height: 100vh;
@@ -24,19 +24,19 @@ body {
 }
 
 .sidebar h4 {
-    color: #8DA9C4; /* Light Steel Blue */
+    color: #FFC300; /* Yellow Orange */
     animation: fadeIn 1s ease-in-out; /* Fade-in animation */
 }
 
 .sidebar .list-group-item {
-    background-color: #13315C; /* Space Cadet */
+    background-color: #001D3D; /* Oxford Blue */
     color: #ffffff;
     border: none;
     transition: background-color 0.3s ease; /* Smooth transition */
 }
 
 .sidebar .list-group-item:hover {
-    background-color: #0B2545; /* Oxford Blue */
+    background-color: #003566; /* Prussian Blue */
     transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
@@ -44,7 +44,8 @@ body {
     margin-left: 250px; /* Adjust this value based on the width of the sidebar */
     padding: 20px;
     flex: 1;
-    background-color: #ffffff; /* Keep the main area white */
+    background-color: #001D3D; /* Oxford Blue */
+    color: #ffffff; /* White text */
     overflow-y: auto; /* Add this line to enable scrolling */
     overflow-x: hidden; /* Prevent horizontal scrolling */
     transition: all 0.3s ease; /* Smooth transition */
@@ -53,7 +54,7 @@ body {
 
 .main h4 {
     margin-bottom: 20px;
-    color: #13315C; /* Space Cadet */
+    color: #FFD60A; /* Pastel Yellow */
     animation: fadeIn 1s ease-in-out; /* Fade-in animation */
 }
 
@@ -62,18 +63,19 @@ body {
 }
 
 .table {
-    background-color: #ffffff;
+    background-color: #001D3D; /* Oxford Blue */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease; /* Smooth transition */
 }
 
 .table th {
-    background-color: #8DA9C4; /* Light Steel Blue */
+    background-color: #003566; /* Prussian Blue */
     color: #ffffff;
 }
 
 .table td {
     vertical-align: middle;
+    color: #ffffff; /* White text */
 }
 
 .btn {
@@ -82,13 +84,13 @@ body {
 }
 
 .btn-primary {
-    background-color: #8DA9C4; /* Light Steel Blue */
-    border-color: #8DA9C4;
+    background-color: #FFC300; /* Yellow Orange */
+    border-color: #FFC300;
 }
 
 .btn-primary:hover {
-    background-color: #13315C; /* Slightly darker Light Steel Blue */
-    border-color: #13315C;
+    background-color: #FFD60A; /* Slightly darker Yellow Orange */
+    border-color: #FFD60A;
     transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
@@ -126,15 +128,15 @@ body {
 }
 
 .modal-header {
-    background-color: #8DA9C4; /* Light Steel Blue */
-    color: #ffffff;
-    border-bottom: 2px solid #D90429; /* Add a border for emphasis */
+    background-color: #FFC300; /* Yellow Orange */
+    color: #000814; /* Rich Black */
+    border-bottom: 2px solid #FFD60A; /* Add a border for emphasis */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
 }
 
 .modal-body {
-    background-color: #f8f9fa; /* Light gray background for contrast */
-    color: #13315C; /* Space Cadet text */
+    background-color: #001D3D; /* Oxford Blue */
+    color: #ffffff; /* White text */
     padding: 20px;
     max-height: 70vh; /* Limit height to avoid overflow */
     overflow-y: auto; /* Enable vertical scrolling */
@@ -143,19 +145,19 @@ body {
 }
 
 .modal-footer {
-    background-color: #f8f9fa; /* Light gray background for contrast */
-    border-top: 2px solid #D90429; /* Add a border for emphasis */
+    background-color: #001D3D; /* Oxford Blue */
+    border-top: 2px solid #FFD60A; /* Add a border for emphasis */
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
 }
 
 .modal-footer .btn-primary {
-    background-color: #8DA9C4; /* Light Steel Blue */
-    border-color: #8DA9C4;
+    background-color: #FFC300; /* Yellow Orange */
+    border-color: #FFC300;
 }
 
 .modal-footer .btn-primary:hover {
-    background-color: #13315C; /* Slightly darker Light Steel Blue */
-    border-color: #13315C;
+    background-color: #FFD60A; /* Slightly darker Yellow Orange */
+    border-color: #FFD60A;
     transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
@@ -178,16 +180,17 @@ body {
 .search-container input {
     width: 100%;
     padding: 10px;
-    border: 1px solid #8DA9C4; /* Light Steel Blue */
+    border: 1px solid #FFC300; /* Yellow Orange */
     border-radius: 5px;
-    background-color: #EEF4ED; /* Honeydew */
-    color: #13315C; /* Space Cadet */
+    background-color: #001D3D; /* Oxford Blue */
+    color: #ffffff; /* White text */
     font-size: 16px;
 }
 
 #logsModalBody {
     white-space: pre-wrap; /* Wrap text to fit the modal */
     word-wrap: break-word; /* Break long words to fit the modal */
+    color: #ffffff; /* White text */
 }
 
 mark {

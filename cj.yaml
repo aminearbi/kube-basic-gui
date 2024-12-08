@@ -1,0 +1,19 @@
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test-k8s-jobs
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: test-k8s-jobs
+            image: busybox:latest
+            command:
+            - /bin/sh
+            - -c
+            - date; echo 'Testing CronJobs on kubernetes'
+          restartPolicy: OnFailure

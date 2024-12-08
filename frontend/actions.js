@@ -40,7 +40,7 @@ function submitScaleModal() {
 }
 
 function fetchDeploymentPods(namespace, name) {
-    $.get(`/deployments/${namespace}/${name}/pods`, function(data) {
+    $.get(`/deployment-pods/${namespace}/${name}`, function(data) {
         console.log('Deployment Pods:', data);
         const pods = data.pods;
         const podsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>State</th><th>Age</th><th>Actions</th></tr></thead>');
@@ -71,7 +71,7 @@ function fetchDeploymentPods(namespace, name) {
 
 
 function fetchStatefulSetPods(namespace, name) {
-    $.get(`/statefulsets/${namespace}/${name}/pods`, function(data) {
+    $.get(`/statefulset-pods/${namespace}/${name}`, function(data) {
         console.log('StatefulSet Pods:', data);
         const pods = data.pods;
         const podsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>State</th><th>Age</th><th>Actions</th></tr></thead>');
@@ -102,7 +102,7 @@ function fetchStatefulSetPods(namespace, name) {
 
 
 function fetchPodLogs(namespace, name) {
-    $.get(`/pods/${namespace}/${name}/logs`, function(data) {
+    $.get(`/pod-logs/${namespace}/${name}`, function(data) {
         console.log('Pod Logs:', data);
         const logs = data.logs;
         const logsPre = $('<pre></pre>').text(logs);

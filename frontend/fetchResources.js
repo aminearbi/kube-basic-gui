@@ -7,10 +7,12 @@ function fetchResources(namespace) {
     $('#statefulsets-section').empty();
     $('#cronjobs-section').empty();
     $('#pods-section').empty();
+    $('#pvcs-section').empty();
     fetchDeployments(namespace); // Fetch Deployments first
     fetchStatefulSets(namespace); // Fetch StatefulSets second
     fetchCronJobs(namespace); // Fetch CronJobs third
     fetchAllPods(namespace, 1); // Start with page 1
+    fetchPVCs(namespace); // Fetch PVCs
 
     // Clear any existing interval
     if (podsInterval) {
@@ -22,6 +24,37 @@ function fetchResources(namespace) {
         fetchAllPods(currentNamespace, 1);
     }, 30000); // Update every 30 seconds
 }
+
+function fetchPVCs(namespace) {
+    $.get(`/pvcs/${namespace}`, function(data) {
+        console.log('PVCs:', data);
+        const pvcs = data.pvcs;
+        const pvcsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>Status</th><th>Volume</th><th>Capacity</th><th>Access Modes</th><th>Storage Class</th></tr></thead>');
+        const pvcsBody = $('<tbody></tbody>');
+        pvcs.forEach(pvc => {
+            const accessModes = pvc.access_modes ? pvc.access_modes.join(', ') : 'N/A';
+            const pvcRow = $(`
+                <tr>
+                    <td>${pvc.name}</td>
+                    <td>${pvc.status}</td>
+                    <td>${pvc.volume}</td>
+                    <td>${pvc.capacity}</td>
+                    <td>${accessModes}</td>
+                    <td>${pvc.storage_class}</td>
+                </tr>
+            `);
+            pvcsBody.append(pvcRow);
+        });
+        pvcsTable.append(pvcsBody);
+        $('#pvcs-section').append('<h5>Persistent Volume Claims (PVCs)</h5>').append(pvcsTable);
+    }).fail(function() {
+        console.error('Failed to fetch PVCs');
+    });
+}
+
+
+
+
 
 function fetchDeployments(namespace) {
     $.get(`/deployments/${namespace}`, function(data) {

@@ -1,65 +1,95 @@
 body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ffffff; /* Set background to white */
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
+    height: 100vh;
 }
 
-#sidebar {
-    width: 100%;
-    height: auto;
-    background-color: #f8f9fa;
+.sidebar {
+    background-color: #000814; /* Dark Blue */
+    color: #ffffff;
     padding: 15px;
-    border-right: 1px solid #dee2e6;
-}
-
-@media (min-width: 768px) {
-    #sidebar {
-        width: 250px;
-        height: 100vh;
-    }
-}
-
-#content {
-    flex-grow: 1;
-    padding: 15px;
-}
-
-.loading-spinner {
-    display: none;
+    height: 100vh;
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+    width: 250px; /* Set a fixed width for the sidebar */
+    transition: all 0.3s ease; /* Smooth transition */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
 }
 
-.custom-alert {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateZ(0);
-    z-index: 1050;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
-    animation: slide-up 0.5s ease-out;
+.sidebar h4 {
+    color: #FFD60A; /* Pastel Yellow */
+    animation: fadeIn 1s ease-in-out; /* Fade-in animation */
 }
 
-@keyframes slide-up {
-    from {
-        transform: translateX(-50%) translateY(100%);
-    }
-    to {
-        transform: translateX(-50%) translateY(0);
-    }
-}
-
-.scale-btn {
-    background: linear-gradient(45deg, #007bff, #0056b3);
+.sidebar .list-group-item {
+    background-color: #000814; /* Dark Blue */
+    color: #ffffff;
     border: none;
-    color: white;
-    transition: transform 0.2s ease-in-out;
+    transition: background-color 0.3s ease; /* Smooth transition */
 }
 
-.scale-btn:hover {
-    transform: scale(1.1);
+.sidebar .list-group-item:hover {
+    background-color: #001D3D; /* Midnight Blue */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.main {
+    margin-left: 250px; /* Adjust this value based on the width of the sidebar */
+    padding: 20px;
+    flex: 1;
+    background-color: #ffffff; /* Keep the main area white */
+    overflow-y: auto; /* Add this line to enable scrolling */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    transition: all 0.3s ease; /* Smooth transition */
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+}
+
+.main h4 {
+    margin-bottom: 20px;
+    color: #000814; /* Dark Blue */
+    animation: fadeIn 1s ease-in-out; /* Fade-in animation */
+}
+
+.btn-group {
+    margin-bottom: 20px;
+}
+
+.table {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease; /* Smooth transition */
+}
+
+.table th {
+    background-color: #003566; /* Steel Blue */
+    color: #ffffff;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.btn {
+    margin-right: 5px;
+    transition: all 0.3s ease; /* Smooth transition */
+}
+
+.btn-primary {
+    background-color: #003566; /* Steel Blue */
+    border-color: #003566;
+}
+
+.btn-primary:hover {
+    background-color: #001D3D; /* Slightly darker Steel Blue */
+    border-color: #001D3D;
+    transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
 .btn-success {
@@ -67,7 +97,92 @@ body {
     border-color: #28a745;
 }
 
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #218838;
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
 .btn-danger {
     background-color: #dc3545;
     border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.modal-header {
+    background-color: #003566; /* Steel Blue */
+    color: #ffffff;
+}
+
+.modal-footer .btn-primary {
+    background-color: #003566; /* Steel Blue */
+    border-color: #003566;
+}
+
+.modal-footer .btn-primary:hover {
+    background-color: #001D3D; /* Slightly darker Steel Blue */
+    border-color: #001D3D;
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.loading-spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+}
+
+.resource-section {
+    display: none;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        box-shadow: none; /* Remove shadow on small screens */
+    }
+
+    .main {
+        margin-left: 0;
+        padding: 10px;
+        box-shadow: none; /* Remove shadow on small screens */
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group .btn {
+        margin-bottom: 10px;
+    }
 }

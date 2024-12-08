@@ -1,73 +1,46 @@
-function scaleStatefulSet(namespace, name, replicas) {
-    const newReplicas = prompt('Enter new number of replicas:', replicas);
-    if (newReplicas !== null) {
-        $.ajax({
-            url: `/scale-statefulset/${namespace}/${name}`,
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ replicas: parseInt(newReplicas) }),
-            success: function(response) {
-                alert('StatefulSet scaled successfully');
-                fetchResources(namespace);
-            },
-            error: function(error) {
-                alert('Error scaling StatefulSet');
-            }
-        });
-    }
+function showAlert(message, type) {
+    const alert = $(`
+        <div class="alert alert-${type} alert-dismissible fade show custom-alert" role="alert">
+            ${message}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    `);
+    $('#alerts').append(alert);
+    setTimeout(() => {
+        alert.alert('close');
+    }, 5000); // Auto close after 5 seconds
 }
 
-function scaleDeployment(namespace, name, replicas) {
-    const newReplicas = prompt('Enter new number of replicas:', replicas);
-    if (newReplicas !== null) {
-        $.ajax({
-            url: `/scale-deployment/${namespace}/${name}`,
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ replicas: parseInt(newReplicas) }),
-            success: function(response) {
-                alert('Deployment scaled successfully');
-                fetchResources(namespace);
-            },
-            error: function(error) {
-                alert('Error scaling Deployment');
-            }
-        });
-    }
-}
+function submitScale(namespace, name, replicas, type) {
+    const url = type === 'Deployment' ? `/scale-deployment/${namespace}/${name}` : `/scale-statefulset/${namespace}/${name}`;
 
-function fetchStatefulSetPods(namespace, statefulsetName) {
-    $.get(`/statefulset-pods/${namespace}/${statefulsetName}`, function(data) {
-        console.log('StatefulSet Pods:', data);
-        const pods = data.pods;
-        const podsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>State</th><th>Age</th><th>Actions</th></tr></thead>');
-        const podsBody = $('<tbody></tbody>');
-        pods.forEach(pod => {
-            const startTime = new Date(pod.start_time);
-            const age = Math.floor((Date.now() - startTime) / (1000 * 60)); // Age in minutes
-            const podRow = $(`
-                <tr>
-                    <td>${pod.name}</td>
-                    <td>${pod.state}</td>
-                    <td>${age} minutes</td>
-                    <td>
-                        <button class="btn btn-secondary btn-sm" onclick="fetchPodLogs('${namespace}', '${pod.name}')">View Logs</button>
-                        <button class="btn btn-danger btn-sm" onclick="deletePod('${namespace}', '${pod.name}')">Delete</button>
-                    </td>
-                </tr>
-            `);
-            podsBody.append(podRow);
-        });
-        podsTable.append(podsBody);
-        $('#podsModalBody').html(podsTable);
-        $('#podsModal').modal('show');
-    }).fail(function() {
-        console.error('Failed to fetch statefulset pods');
+    $.ajax({
+        url: url,
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ replicas: parseInt(replicas) }),
+        success: function(response) {
+            showAlert(`${type} "${name}" scaled successfully`, 'success');
+            fetchResources(namespace);
+        },
+        error: function(error) {
+            showAlert(`Error scaling ${type} "${name}"`, 'danger');
+        }
     });
 }
 
-function fetchDeploymentPods(namespace, deploymentName) {
-    $.get(`/deployment-pods/${namespace}/${deploymentName}`, function(data) {
+function submitScaleModal() {
+    const namespace = $('#scaleModalNamespace').val();
+    const name = $('#scaleModalName').val();
+    const replicas = $('#scaleModalReplicas').val();
+    const type = $('#scaleModalType').val();
+    submitScale(namespace, name, replicas, type);
+}
+
+function fetchDeploymentPods(namespace, name) {
+    $.get(`/deployments/${namespace}/${name}/pods`, function(data) {
         console.log('Deployment Pods:', data);
         const pods = data.pods;
         const podsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>State</th><th>Age</th><th>Actions</th></tr></thead>');
@@ -78,7 +51,7 @@ function fetchDeploymentPods(namespace, deploymentName) {
             const podRow = $(`
                 <tr>
                     <td>${pod.name}</td>
-                    <td>${pod.state}</td>
+                    <td>${pod.state || 'Unknown'}</td>
                     <td>${age} minutes</td>
                     <td>
                         <button class="btn btn-secondary btn-sm" onclick="fetchPodLogs('${namespace}', '${pod.name}')">View Logs</button>
@@ -96,96 +69,88 @@ function fetchDeploymentPods(namespace, deploymentName) {
     });
 }
 
-function fetchPodLogs(namespace, podName) {
-    $.get(`/pod-logs/${namespace}/${podName}`, function(data) {
+
+function fetchStatefulSetPods(namespace, name) {
+    $.get(`/statefulsets/${namespace}/${name}/pods`, function(data) {
+        console.log('StatefulSet Pods:', data);
+        const pods = data.pods;
+        const podsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>State</th><th>Age</th><th>Actions</th></tr></thead>');
+        const podsBody = $('<tbody></tbody>');
+        pods.forEach(pod => {
+            const startTime = new Date(pod.start_time);
+            const age = Math.floor((Date.now() - startTime) / (1000 * 60)); // Age in minutes
+            const podRow = $(`
+                <tr>
+                    <td>${pod.name}</td>
+                    <td>${pod.state || 'Unknown'}</td>
+                    <td>${age} minutes</td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="fetchPodLogs('${namespace}', '${pod.name}')">View Logs</button>
+                        <button class="btn btn-danger btn-sm" onclick="deletePod('${namespace}', '${pod.name}')">Delete</button>
+                    </td>
+                </tr>
+            `);
+            podsBody.append(podRow);
+        });
+        podsTable.append(podsBody);
+        $('#podsModalBody').html(podsTable);
+        $('#podsModal').modal('show');
+    }).fail(function() {
+        console.error('Failed to fetch statefulset pods');
+    });
+}
+
+
+function fetchPodLogs(namespace, name) {
+    $.get(`/pods/${namespace}/${name}/logs`, function(data) {
         console.log('Pod Logs:', data);
         const logs = data.logs;
-        $('#logsModalBody').text(logs);
+        const logsPre = $('<pre></pre>').text(logs);
+        $('#logsModalBody').html(logsPre);
         $('#logsModal').modal('show');
     }).fail(function() {
         console.error('Failed to fetch pod logs');
     });
 }
 
-function fetchCronJobJobs(namespace, cronjobName) {
-    $.get(`/jobs/${namespace}/${cronjobName}`, function(data) {
-        console.log('Jobs:', data);
-        const jobs = data.jobs;
-        const jobsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>Actions</th></tr></thead>');
-        const jobsBody = $('<tbody></tbody>');
-        jobs.forEach(job => {
-            const jobRow = $(`
-                <tr>
-                    <td>${job.name}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm" onclick="deleteJob('${namespace}', '${job.name}', '${cronjobName}')">Delete</button>
-                    </td>
-                </tr>
-            `);
-            jobsBody.append(jobRow);
-        });
-        jobsTable.append(jobsBody);
-        $('#jobsModalBody').html(jobsTable);
-        $('#jobsModal').modal('show');
-    }).fail(function() {
-        console.error('Failed to fetch jobs');
-    });
-}
-
-function deleteJob(namespace, jobName, cronjobName) {
+function deletePod(namespace, name) {
     $.ajax({
-        url: `/delete-job/${namespace}/${jobName}`,
+        url: `/pods/${namespace}/${name}`,
         type: 'DELETE',
         success: function(response) {
-            alert('Job and associated pods deleted successfully');
-            fetchCronJobJobs(namespace, cronjobName); // Refresh the list of jobs
-        },
-        error: function(error) {
-            alert('Error deleting job and associated pods');
-        }
-    });
-}
-
-function showEditCronJobModal(namespace, cronjobName, currentSchedule) {
-    $('#cronJobSchedule').val(currentSchedule);
-    $('#editCronJobForm').off('submit').on('submit', function(event) {
-        event.preventDefault();
-        const newSchedule = $('#cronJobSchedule').val();
-        editCronJobSchedule(namespace, cronjobName, newSchedule);
-    });
-    $('#editCronJobModal').modal('show');
-}
-
-function editCronJobSchedule(namespace, cronjobName, newSchedule) {
-    $.ajax({
-        url: `/edit-cronjob/${namespace}/${cronjobName}`,
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ schedule: newSchedule }),
-        success: function(response) {
-            alert('CronJob schedule updated successfully');
-            $('#editCronJobModal').modal('hide');
+            showAlert(`Pod "${name}" deleted successfully`, 'success');
             fetchResources(namespace);
         },
         error: function(error) {
-            alert('Error updating CronJob schedule');
+            showAlert(`Error deleting pod "${name}"`, 'danger');
         }
     });
 }
 
-function deletePod(namespace, podName) {
-    $('.loading-spinner').show(); // Show loading spinner
+function showEditCronJobModal(namespace, name, schedule) {
+    $('#editCronJobModalLabel').text(`Edit CronJob Schedule for ${name}`);
+    $('#cronJobSchedule').val(schedule);
+    $('#editCronJobModal').modal('show');
+    $('#editCronJobForm').off('submit').on('submit', function(event) {
+        event.preventDefault();
+        const newSchedule = $('#cronJobSchedule').val();
+        editCronJobSchedule(namespace, name, newSchedule);
+    });
+}
+
+function editCronJobSchedule(namespace, name, schedule) {
     $.ajax({
-        url: `/delete-pod/${namespace}/${podName}`,
-        type: 'DELETE',
+        url: `/cronjobs/${namespace}/${name}`,
+        type: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify({ schedule: schedule }),
         success: function(response) {
-            alert('Pod deleted successfully');
-            fetchAllPods(namespace); // Refresh the list of pods
-            $('.loading-spinner').hide(); // Hide loading spinner
+            showAlert(`CronJob "${name}" schedule updated successfully`, 'success');
+            fetchResources(namespace);
+            $('#editCronJobModal').modal('hide');
         },
         error: function(error) {
-            alert('Error deleting pod');
-            $('.loading-spinner').hide(); // Hide loading spinner
+            showAlert(`Error updating schedule for CronJob "${name}"`, 'danger');
         }
     });
 }

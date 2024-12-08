@@ -5,45 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kubernetes GUI</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            display: flex;
-        }
-        #sidebar {
-            width: 250px;
-            height: 100vh;
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-right: 1px solid #dee2e6;
-        }
-        #content {
-            flex-grow: 1;
-            padding: 15px;
-        }
-        .loading-spinner {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-        }
-        .pagination {
-            justify-content: center;
-        }
-    </style>
+    <link href="styles.css" rel="stylesheet"> <!-- Include the new CSS file -->
 </head>
 <body>
-    <div id="sidebar">
-        <h4>Namespaces</h4>
-        <ul id="namespaces" class="list-group">
-            <!-- Namespaces will be populated here -->
-        </ul>
-    </div>
-    <div id="content">
-        <h4>Resources</h4>
-        <div id="resources">
-            <!-- Resources will be displayed here -->
+    <div class="container-fluid">
+        <div class="row">
+            <div id="sidebar" class="col-md-3 col-lg-2 d-none d-md-block bg-light sidebar">
+                <h4>Namespaces</h4>
+                <ul id="namespaces" class="list-group">
+                    <!-- Namespaces will be populated here -->
+                </ul>
+            </div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <h4>Resources</h4>
+                <div id="alerts"></div> <!-- Alerts will be displayed here -->
+                <div id="deployments-section">
+                    <!-- Deployments will be displayed here -->
+                </div>
+                <div id="statefulsets-section">
+                    <!-- StatefulSets will be displayed here -->
+                </div>
+                <div id="cronjobs-section">
+                    <!-- CronJobs will be displayed here -->
+                </div>
+                <div id="pods-section">
+                    <!-- Pods and pagination will be displayed here -->
+                </div>
+            </main>
         </div>
     </div>
 
@@ -51,6 +39,32 @@
     <div class="loading-spinner">
         <div class="spinner-border text-primary" role="status">
             <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Scale Modal -->
+    <div class="modal fade" id="scaleModal" tabindex="-1" aria-labelledby="scaleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scaleModalLabel">Scale Resource</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="scaleForm">
+                        <input type="hidden" id="scaleModalNamespace">
+                        <input type="hidden" id="scaleModalName">
+                        <input type="hidden" id="scaleModalType">
+                        <div class="form-group">
+                            <label for="scaleModalReplicas">Replicas</label>
+                            <input type="number" class="form-control" id="scaleModalReplicas" placeholder="Enter number of replicas">
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="submitScaleModal()">Scale</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 

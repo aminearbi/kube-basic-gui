@@ -161,7 +161,7 @@ function createJobFromCronjob(namespace, cronjobName) {
     })
     .then(response => response.json())
     .then(data => {
-        showAlert(`Job created from CronJob "${cronjobName}" successfully`, 'success');
+        showAlert(`Job "${data.job_name}" created from CronJob "${cronjobName}" successfully`, 'success');
         // Refresh the cronjob list or perform any other necessary actions
     })
     .catch(error => {

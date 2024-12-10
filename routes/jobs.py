@@ -74,4 +74,5 @@ def create_job_from_cronjob(namespace, cronjob_name):
         )
     )
     batch_v1.create_namespaced_job(namespace, job)
-    return jsonify({'message': f'Job :{job_name} created from CronJob {cronjob_name} successfully'})
+
+    return jsonify({'job_name': f'{job_name}'})

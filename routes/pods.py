@@ -45,5 +45,4 @@ def get_pod_logs(namespace, pod_name):
 def delete_pod(namespace, pod_name):
     v1 = get_core_v1_api()
     resu=v1.delete_namespaced_pod(name=pod_name, namespace=namespace)
-    print(resu)
     return jsonify({'message': 'Pod deleted successfully'})

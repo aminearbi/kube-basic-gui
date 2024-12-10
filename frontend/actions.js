@@ -113,7 +113,7 @@ function fetchPodLogs(namespace, name) {
 
 function deletePod(namespace, name) {
     $.ajax({
-        url: `/delete-job/${namespace}/${name}`,
+        url: `/delete-pod/${namespace}/${name}`,
         type: 'DELETE',
         success: function (response) {
             showAlert(`Pod "${name}" deleted successfully`, 'success');
@@ -153,6 +153,23 @@ function editCronJobSchedule(namespace, name, schedule) {
     });
 }
 
+
+
+function createJobFromCronjob(namespace, cronjobName) {
+    fetch(`/create-job-from-cronjob/${namespace}/${cronjobName}`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        showAlert(`Job created from CronJob "${cronjobName}" successfully`, 'success');
+        // Refresh the cronjob list or perform any other necessary actions
+    })
+    .catch(error => {
+        showAlert(`Error creating job from CronJob "${cronjobName}"`, 'danger');
+        console.error('Error creating job from CronJob:', error);
+    });
+}
+
 function showRelatedJobs(namespace, cronjobName) {
     fetch(`/jobs/${namespace}/${cronjobName}`)
         .then(response => response.json())
@@ -160,13 +177,11 @@ function showRelatedJobs(namespace, cronjobName) {
             var relatedJobsList = $('#relatedJobsList');
             relatedJobsList.empty();
             data.jobs.forEach(job => {
-                const startTime = new Date(job.start_time);
-                const age = Math.floor((Date.now() - startTime) / (1000 * 60)); // Age in minutes
                 relatedJobsList.append(`
                     <tr>
                         <td>${job.name}</td>
                         <td>${job.status}</td>
-                        <td>${age} minutes</td>
+                        <td>${job.age} minutes</td>
                         <td>
                             <button class="btn btn-danger btn-sm" onclick="deleteJob('${namespace}', '${job.name}')">Delete</button>
                         </td>
@@ -187,9 +202,11 @@ function deleteJob(namespace, jobName) {
     .then(response => response.json())
     .then(data => {
         showAlert(`Job "${jobName}" deleted successfully`, 'success');
-        // Refresh the related jobs list
-        const cronjobName = $('#relatedJobsModal').data('cronjob-name');
-        showRelatedJobs(cronjobName, namespace);
+        // Wait for 3 seconds before refreshing the related jobs list
+        setTimeout(() => {
+            const cronjobName = $('#relatedJobsModal').data('cronjob-name');
+            showRelatedJobs(namespace, cronjobName);
+        }, 3000);
     })
     .catch(error => {
         showAlert(`Error deleting job "${jobName}"`, 'danger');

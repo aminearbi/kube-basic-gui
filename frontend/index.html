@@ -120,7 +120,7 @@
 
 <!-- Modal for Displaying Related Jobs -->
 <div class="modal fade" id="relatedJobsModal" tabindex="-1" aria-labelledby="relatedJobsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-zoom">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="relatedJobsModalLabel">Related Jobs</h5>
@@ -129,13 +129,25 @@
                 </button>
             </div>
             <div class="modal-body">
-                <ul id="relatedJobsList" class="list-group">
-                    <!-- Related jobs will be listed here -->
-                </ul>
+                <table class="table table-striped table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Age</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="relatedJobsList">
+                        <!-- Related jobs will be listed here -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
+
+
 
     <!-- Modal for Editing CronJob Schedule -->
     <div class="modal fade" id="editCronJobModal" tabindex="-1" aria-labelledby="editCronJobModalLabel" aria-hidden="true">
@@ -159,6 +171,31 @@
             </div>
         </div>
     </div>
+
+<!-- CronJobs Section -->
+<div id="cronjobs-section" class="resource-section">
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Schedule</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="cronjobsList">
+            <!-- CronJobs will be listed here -->
+            <tr>
+                <td>example-cronjob</td>
+                <td>*/3 * * * *</td>
+                <td>
+                    <button type="button" class="btn btn-secondary show-related-jobs-button" data-cronjob-name="example-cronjob" data-namespace="default">View Jobs</button>
+                    <button type="button" class="btn btn-primary edit-schedule-button" data-cronjob-name="example-cronjob" data-namespace="default">Edit Schedule</button>
+                    <button type="button" class="btn btn-success create-job-button" data-cronjob-name="example-cronjob" data-namespace="default">Create Job</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>

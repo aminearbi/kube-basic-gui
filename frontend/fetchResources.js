@@ -124,7 +124,7 @@ function fetchCronJobs(namespace) {
                     <td>${cj.name}</td>
                     <td>${cj.schedule}</td>
                     <td>
-                        <button class="btn btn-secondary btn-sm" onclick="fetchCronJobJobs('${namespace}', '${cj.name}')">View Jobs</button>
+                        <button class="btn btn-secondary btn-sm" onclick="showRelatedJobs('${namespace}', '${cj.name}')">View Jobs</button>
                         <button class="btn btn-primary btn-sm" onclick="showEditCronJobModal('${namespace}', '${cj.name}', '${cj.schedule}')">Edit Schedule</button>
                     </td>
                 </tr>

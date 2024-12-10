@@ -10,12 +10,6 @@ def get_cronjobs(namespace):
     cronjob_list = [{'name': cj.metadata.name, 'schedule': cj.spec.schedule} for cj in cronjobs]
     return jsonify({'cronjobs': cronjob_list})
 
-@cronjobs_bp.route('/jobs/<namespace>/<cronjob_name>')
-def get_jobs(namespace, cronjob_name):
-    batch_v1 = get_batch_v1_api()
-    jobs = batch_v1.list_namespaced_job(namespace).items
-    job_list = [{'name': job.metadata.name} for job in jobs if job.metadata.owner_references and job.metadata.owner_references[0].name == cronjob_name]
-    return jsonify({'jobs': job_list})
 
 @cronjobs_bp.route('/delete-job/<namespace>/<job_name>', methods=['DELETE'])
 def delete_job(namespace, job_name):
@@ -50,3 +44,15 @@ def create_job_from_cronjob(namespace, cronjob_name):
     )
     batch_v1.create_namespaced_job(namespace=namespace, body=job)
     return jsonify({'message': 'Job created from CronJob successfully'})
+
+# @cronjobs_bp.route('/job/<namespace>/<job_name>', methods=['DELETE'])
+# def delete_job(namespace, job_name):
+#     batch_v1 = get_batch_v1_api()
+#     core_v1 = get_core_v1_api()
+#     # Delete associated pods
+#     pods = core_v1.list_namespaced_pod(namespace, label_selector=f"job-name={job_name}").items
+#     for pod in pods:
+#         core_v1.delete_namespaced_pod(name=pod.metadata.name, namespace=namespace)
+#     # Delete the job
+#     batch_v1.delete_namespaced_job(name=job_name, namespace=namespace)
+#     return jsonify({'message': 'Job and associated pods deleted successfully'})

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link id="themeStylesheet" href="default-theme.css" rel="stylesheet"> <!-- Include the default theme CSS file -->
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row">
@@ -19,14 +21,20 @@
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 main">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4>Resources</h4>
-                    <button id="themeButton" class="btn btn-outline-secondary" onclick="toggleTheme()">Switch to Alternative Theme</button>
+                    <button id="themeButton" class="btn btn-outline-secondary" onclick="toggleTheme()">Switch to
+                        Alternative Theme</button>
                 </div>
                 <div class="btn-group" role="group" aria-label="Resource Selection">
-                    <button type="button" class="btn btn-outline-primary" onclick="showSection('deployments-section')">Deployments</button>
-                    <button type="button" class="btn btn-outline-primary" onclick="showSection('statefulsets-section')">StatefulSets</button>
-                    <button type="button" class="btn btn-outline-primary" onclick="showSection('pvcs-section')">PVCs</button>
-                    <button type="button" class="btn btn-outline-primary" onclick="showSection('cronjobs-section')">CronJobs</button>
-                    <button type="button" class="btn btn-outline-primary" onclick="showSection('pods-section')">Pods</button>
+                    <button type="button" class="btn btn-outline-primary"
+                        onclick="showSection('deployments-section')">Deployments</button>
+                    <button type="button" class="btn btn-outline-primary"
+                        onclick="showSection('statefulsets-section')">StatefulSets</button>
+                    <button type="button" class="btn btn-outline-primary"
+                        onclick="showSection('pvcs-section')">PVCs</button>
+                    <button type="button" class="btn btn-outline-primary"
+                        onclick="showSection('cronjobs-section')">CronJobs</button>
+                    <button type="button" class="btn btn-outline-primary"
+                        onclick="showSection('pods-section')">Pods</button>
                 </div>
                 <div id="alerts"></div> <!-- Alerts will be displayed here -->
                 <div id="deployments-section" class="resource-section">
@@ -48,13 +56,6 @@
         </div>
     </div>
 
-    <!-- Loading Spinner -->
-    <div class="loading-spinner">
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-    </div>
-
     <!-- Scale Modal -->
     <div class="modal fade" id="scaleModal" tabindex="-1" aria-labelledby="scaleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -72,7 +73,8 @@
                         <input type="hidden" id="scaleModalType">
                         <div class="form-group">
                             <label for="scaleModalReplicas">Replicas</label>
-                            <input type="number" class="form-control" id="scaleModalReplicas" placeholder="Enter number of replicas">
+                            <input type="number" class="form-control" id="scaleModalReplicas"
+                                placeholder="Enter number of replicas">
                         </div>
                         <button type="button" class="btn btn-primary" onclick="submitScaleModal()">Scale</button>
                     </form>
@@ -99,14 +101,70 @@
     </div>
 
     <!-- Logs Modal -->
-   <!-- Logs Modal --> <div class="modal fade" id="logsModal" tabindex="-1" aria-labelledby="logsModalLabel" aria-hidden="true"> <div class="modal-dialog modal-lg"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title" id="logsModalLabel">Pod Logs</h5> <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button> </div> <div class="modal-body"> <div class="search-container"> <input type="text" id="logSearch" class="form-control" placeholder="Search logs..."> </div> <pre id="logsModalBody"> <!-- Example log entry --> <span class="log-timestamp">2024-12-08 05:17:00</span> INFO: Starting Kubernetes pod... </pre> </div> </div> </div> </div>
+    <div class="modal fade" id="logsModal" tabindex="-1" aria-labelledby="logsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logsModalLabel">Pod Logs</h5> <button type="button" class="close"
+                        data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
+                </div>
+                <div class="modal-body">
+                    <div class="search-container"> <input type="text" id="logSearch" class="form-control"
+                            placeholder="Search logs..."> </div>
+                    <pre
+                        id="logsModalBody"> <!-- Example log entry --> <span class="log-timestamp">2024-12-08 05:17:00</span> INFO: Starting Kubernetes pod... </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal for Displaying Related Jobs -->
+<div class="modal fade" id="relatedJobsModal" tabindex="-1" aria-labelledby="relatedJobsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-zoom">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="relatedJobsModalLabel">Related Jobs</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="relatedJobsList" class="list-group">
+                    <!-- Related jobs will be listed here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Modal for Editing CronJob Schedule -->
+    <div class="modal fade" id="editCronJobModal" tabindex="-1" aria-labelledby="editCronJobModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-zoom">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCronJobModalLabel">Edit CronJob Schedule</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editCronJobForm">
+                        <div class="form-group">
+                            <label for="cronJobSchedule">Cron Expression</label>
+                            <input type="text" class="form-control" id="cronJobSchedule" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="fetchNamespaces.js"></script>
     <script src="fetchResources.js"></script>
     <script src="actions.js"></script>
-    <script src="scripts.js"></script> <!-- Include the external JavaScript file -->
     <script>
         function showSection(sectionId) {
             $('.resource-section').hide();
@@ -138,7 +196,7 @@
             }
         }
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             showSection('deployments-section'); // Show deployments section by default
             loadNamespace(); // Load the last selected namespace
 
@@ -153,13 +211,13 @@
             }
 
             // Search logs
-            $('#logSearch').on('input', function() {
+            $('#logSearch').on('input', function () {
                 var searchTerm = $(this).val().toLowerCase();
-                $('#logsModalBody').html(function(_, html) {
+                $('#logsModalBody').html(function (_, html) {
                     return html.replace(/<mark>/g, '').replace(/<\/mark>/g, '');
                 });
                 if (searchTerm) {
-                    $('#logsModalBody').html(function(_, html) {
+                    $('#logsModalBody').html(function (_, html) {
                         var regex = new RegExp('(' + searchTerm + ')', 'gi');
                         return html.replace(regex, '<mark>$1</mark>');
                     });
@@ -168,4 +226,5 @@
         });
     </script>
 </body>
+
 </html>

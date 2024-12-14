@@ -1,4 +1,14 @@
 from kubernetes import client, config
+from croniter import croniter
+from datetime import datetime
+
+def is_valid_cron_expression(cron_expression):
+    try:
+        croniter(cron_expression, datetime.now())
+        return True
+    except (ValueError, KeyError):
+        return False
+
 
 def load_kube_config():
     config.load_kube_config()

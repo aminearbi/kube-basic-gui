@@ -4,8 +4,11 @@ from flask import Blueprint, jsonify, request
 from kubernetes_client import get_batch_v1_api, get_core_v1_api
 from kubernetes import client, config
 from kubernetes.client import V1Job, V1ObjectMeta, V1JobSpec, V1PodTemplateSpec, V1PodSpec, V1Container
+from kubernetes_client import is_valid_cron_expression
 
 cronjobs_bp = Blueprint('cronjobs', __name__)
+
+
 
 @cronjobs_bp.route('/cronjobs/<namespace>')
 def get_cronjobs(namespace):
@@ -32,10 +35,13 @@ def delete_job(namespace, job_name):
 @cronjobs_bp.route('/edit-cronjob/<namespace>/<cronjob_name>', methods=['POST'])
 def edit_cronjob(namespace, cronjob_name):
     new_schedule = request.json.get('schedule')
-    batch_v1 = get_batch_v1_api()
-    cronjob = batch_v1.read_namespaced_cron_job(name=cronjob_name, namespace=namespace)
-    cronjob.spec.schedule = new_schedule
-    batch_v1.patch_namespaced_cron_job(name=cronjob_name, namespace=namespace, body=cronjob)
-    return jsonify({'message': 'CronJob schedule updated successfully'})
+    if not is_valid_cron_expression(cron_expression): 
+        return jsonify({'error': 'Invalid cron expression'}), 400
+    else:
+        batch_v1 = get_batch_v1_api()
+        cronjob = batch_v1.read_namespaced_cron_job(name=cronjob_name, namespace=namespace)
+        cronjob.spec.schedule = new_schedule
+        batch_v1.patch_namespaced_cron_job(name=cronjob_name, namespace=namespace, body=cronjob)
+        return jsonify({'message': 'CronJob schedule updated successfully'})
 
 

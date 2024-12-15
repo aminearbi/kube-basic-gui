@@ -127,13 +127,78 @@ function deletePod(namespace, name) {
 
 function showEditCronJobModal(namespace, name, schedule) {
     $('#editCronJobModalLabel').text(`Edit CronJob Schedule for ${name}`);
-    $('#cronJobSchedule').val(schedule);
+    const [minute, hour, dayOfMonth, month, dayOfWeek] = schedule.split(' ');
+    $('#cronJobMinute').val(minute);
+    $('#cronJobHour').val(hour);
+    $('#cronJobDayOfMonth').val(dayOfMonth);
+    $('#cronJobMonth').val(month);
+    $('#cronJobDayOfWeek').val(dayOfWeek);
+    $('#cronJobExpression').val(schedule);
     $('#editCronJobModal').modal('show');
+
+    $('#editCronJobForm input').on('input', function () {
+        const newSchedule = `${$('#cronJobMinute').val()} ${$('#cronJobHour').val()} ${$('#cronJobDayOfMonth').val()} ${$('#cronJobMonth').val()} ${$('#cronJobDayOfWeek').val()}`;
+        $('#cronJobExpression').val(newSchedule);
+    });
+
     $('#editCronJobForm').off('submit').on('submit', function (event) {
         event.preventDefault();
-        const newSchedule = $('#cronJobSchedule').val();
-        editCronJobSchedule(namespace, name, newSchedule);
+        const newSchedule = $('#cronJobExpression').val();
+        if (validateCronFields()) {
+            $('#updateButton').prop('disabled', true);
+            $('#loadingSpinner').show();
+            editCronJobSchedule(namespace, name, newSchedule);
+        } else {
+            showAlert('Invalid cron expression', 'danger');
+        }
     });
+}
+
+function validateCronFields() {
+    let isValid = true;
+
+    const minute = $('#cronJobMinute').val();
+    const hour = $('#cronJobHour').val();
+    const dayOfMonth = $('#cronJobDayOfMonth').val();
+    const month = $('#cronJobMonth').val();
+    const dayOfWeek = $('#cronJobDayOfWeek').val();
+
+    if (!/^(\*|([0-5]?\d)|([0-5]?\d-\d+)|(\d+(,\d+)*))$/.test(minute)) {
+        $('#cronJobMinute').addClass('is-invalid');
+        isValid = false;
+    } else {
+        $('#cronJobMinute').removeClass('is-invalid');
+    }
+
+    if (!/^(\*|([01]?\d|2[0-3])|([01]?\d-\d+)|(\d+(,\d+)*))$/.test(hour)) {
+        $('#cronJobHour').addClass('is-invalid');
+        isValid = false;
+    } else {
+        $('#cronJobHour').removeClass('is-invalid');
+    }
+
+    if (!/^(\*|([1-9]|[12]\d|3[01])|([1-9]-\d+)|(\d+(,\d+)*))$/.test(dayOfMonth)) {
+        $('#cronJobDayOfMonth').addClass('is-invalid');
+        isValid = false;
+    } else {
+        $('#cronJobDayOfMonth').removeClass('is-invalid');
+    }
+
+    if (!/^(\*|([1-9]|1[0-2])|([1-9]-\d+)|(\d+(,\d+)*))$/.test(month)) {
+        $('#cronJobMonth').addClass('is-invalid');
+        isValid = false;
+    } else {
+        $('#cronJobMonth').removeClass('is-invalid');
+    }
+
+    if (!/^(\*|([0-6])|([0-6]-\d+)|(\d+(,\d+)*))$/.test(dayOfWeek)) {
+        $('#cronJobDayOfWeek').addClass('is-invalid');
+        isValid = false;
+    } else {
+        $('#cronJobDayOfWeek').removeClass('is-invalid');
+    }
+
+    return isValid;
 }
 
 function editCronJobSchedule(namespace, name, schedule) {
@@ -149,11 +214,19 @@ function editCronJobSchedule(namespace, name, schedule) {
         },
         error: function (error) {
             showAlert(`Error updating schedule for CronJob "${name}"`, 'danger');
+        },
+        complete: function () {
+            $('#updateButton').prop('disabled', false);
+            $('#loadingSpinner').hide();
         }
     });
 }
 
-
+function isValidCronExpression(cronExpression) {
+    // Improved regex for cron expression validation
+    const cronRegex = /^(\*|([0-5]?\d)|([0-5]?\d-\d+)|(\d+(,\d+)*)) (\*|([01]?\d|2[0-3])|([01]?\d-\d+)|(\d+(,\d+)*)) (\*|([1-9]|[12]\d|3[01])|([1-9]-\d+)|(\d+(,\d+)*)) (\*|([1-9]|1[0-2])|([1-9]-\d+)|(\d+(,\d+)*)) (\*|([0-6])|([0-6]-\d+)|(\d+(,\d+)*))$/;
+    return cronRegex.test(cronExpression);
+}
 
 function createJobFromCronjob(namespace, cronjobName) {
     fetch(`/create-job-from-cronjob/${namespace}/${cronjobName}`, {
@@ -213,4 +286,3 @@ function deleteJob(namespace, jobName) {
         console.error('Error deleting job:', error);
     });
 }
-

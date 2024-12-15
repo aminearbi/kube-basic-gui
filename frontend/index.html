@@ -148,29 +148,57 @@
 </div>
 
 
-
-    <!-- Modal for Editing CronJob Schedule -->
-    <div class="modal fade" id="editCronJobModal" tabindex="-1" aria-labelledby="editCronJobModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-zoom">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editCronJobModalLabel">Edit CronJob Schedule</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="editCronJobForm">
-                        <div class="form-group">
-                            <label for="cronJobSchedule">Cron Expression</label>
-                            <input type="text" class="form-control" id="cronJobSchedule" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Update</button>
-                    </form>
-                </div>
+<!-- Modal for Editing CronJob Schedule -->
+<!-- Modal for Editing CronJob Schedule -->
+<div class="modal fade" id="editCronJobModal" tabindex="-1" aria-labelledby="editCronJobModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-zoom">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCronJobModalLabel">Edit CronJob Schedule</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editCronJobForm">
+                    <div class="form-group">
+                        <label for="cronJobMinute">Minute</label>
+                        <input type="text" class="form-control" id="cronJobMinute" placeholder="0-59" required>
+                        <div class="invalid-feedback">Please enter a valid minute (0-59).</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cronJobHour">Hour</label>
+                        <input type="text" class="form-control" id="cronJobHour" placeholder="0-23" required>
+                        <div class="invalid-feedback">Please enter a valid hour (0-23).</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cronJobDayOfMonth">Day of Month</label>
+                        <input type="text" class="form-control" id="cronJobDayOfMonth" placeholder="1-31" required>
+                        <div class="invalid-feedback">Please enter a valid day of the month (1-31).</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cronJobMonth">Month</label>
+                        <input type="text" class="form-control" id="cronJobMonth" placeholder="1-12" required>
+                        <div class="invalid-feedback">Please enter a valid month (1-12).</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cronJobDayOfWeek">Day of Week</label>
+                        <input type="text" class="form-control" id="cronJobDayOfWeek" placeholder="0-6 (Sun-Sat)" required>
+                        <div class="invalid-feedback">Please enter a valid day of the week (0-6).</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cronJobExpression">Cron Expression</label>
+                        <input type="text" class="form-control" id="cronJobExpression" readonly>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="updateButton">Update</button>
+                    <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
 <!-- CronJobs Section -->
 <div id="cronjobs-section" class="resource-section">

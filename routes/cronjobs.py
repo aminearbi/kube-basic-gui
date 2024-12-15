@@ -35,7 +35,7 @@ def delete_job(namespace, job_name):
 @cronjobs_bp.route('/edit-cronjob/<namespace>/<cronjob_name>', methods=['POST'])
 def edit_cronjob(namespace, cronjob_name):
     new_schedule = request.json.get('schedule')
-    if not is_valid_cron_expression(cron_expression): 
+    if not is_valid_cron_expression(new_schedule): 
         return jsonify({'error': 'Invalid cron expression'}), 400
     else:
         batch_v1 = get_batch_v1_api()

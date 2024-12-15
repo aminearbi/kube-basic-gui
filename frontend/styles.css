@@ -188,6 +188,7 @@ body {
 #logsModalBody {
     white-space: pre-wrap; /* Wrap text to fit the modal */
     word-wrap: break-word; /* Break long words to fit the modal */
+    width: 150px;
 }
 
 mark {

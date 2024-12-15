@@ -162,28 +162,28 @@
                 <form id="editCronJobForm">
                     <div class="form-group">
                         <label for="cronJobMinute">Minute</label>
-                        <input type="number" class="form-control" id="cronJobMinute" placeholder="0-59" min="0" max="59" required>
-                        <div class="invalid-feedback">Please enter a valid minute (0-59).</div>
+                        <input type="text" class="form-control" id="cronJobMinute" placeholder="* or 0-59" required>
+                        <div class="invalid-feedback">Please enter a valid minute (* or 0-59).</div>
                     </div>
                     <div class="form-group">
                         <label for="cronJobHour">Hour</label>
-                        <input type="number" class="form-control" id="cronJobHour" placeholder="0-23" min="0" max="23" required>
-                        <div class="invalid-feedback">Please enter a valid hour (0-23).</div>
+                        <input type="text" class="form-control" id="cronJobHour" placeholder="* or 0-23" required>
+                        <div class="invalid-feedback">Please enter a valid hour (* or 0-23).</div>
                     </div>
                     <div class="form-group">
                         <label for="cronJobDayOfMonth">Day of Month</label>
-                        <input type="number" class="form-control" id="cronJobDayOfMonth" placeholder="1-31" min="1" max="31" required>
-                        <div class="invalid-feedback">Please enter a valid day of the month (1-31).</div>
+                        <input type="text" class="form-control" id="cronJobDayOfMonth" placeholder="* or 1-31" required>
+                        <div class="invalid-feedback">Please enter a valid day of the month (* or 1-31).</div>
                     </div>
                     <div class="form-group">
                         <label for="cronJobMonth">Month</label>
-                        <input type="number" class="form-control" id="cronJobMonth" placeholder="1-12" min="1" max="12" required>
-                        <div class="invalid-feedback">Please enter a valid month (1-12).</div>
+                        <input type="text" class="form-control" id="cronJobMonth" placeholder="* or 1-12" required>
+                        <div class="invalid-feedback">Please enter a valid month (* or 1-12).</div>
                     </div>
                     <div class="form-group">
                         <label for="cronJobDayOfWeek">Day of Week</label>
-                        <input type="number" class="form-control" id="cronJobDayOfWeek" placeholder="1-7 (Mon-Sun)" min="1" max="7" required>
-                        <div class="invalid-feedback">Please enter a valid day of the week (1-7).</div>
+                        <input type="text" class="form-control" id="cronJobDayOfWeek" placeholder="* or 0-6 (Sun-Sat)" required>
+                        <div class="invalid-feedback">Please enter a valid day of the week (* or 0-6).</div>
                     </div>
                     <div class="form-group">
                         <label for="cronJobExpression">Cron Expression</label>

@@ -132,20 +132,19 @@ function showEditCronJobModal(namespace, name, schedule) {
     $('#cronJobHour').val(hour);
     $('#cronJobDayOfMonth').val(dayOfMonth);
     $('#cronJobMonth').val(month);
-    $('#cronJobDayOfWeek').val(parseInt(dayOfWeek) + 1); // Display day of week as 1-7
+    $('#cronJobDayOfWeek').val(dayOfWeek); // Display day of week as entered
     $('#cronJobExpression').val(schedule);
     $('#editCronJobModal').modal('show');
 
     $('#editCronJobForm input').on('input', function () {
-        const newSchedule = `${$('#cronJobMinute').val()} ${$('#cronJobHour').val()} ${$('#cronJobDayOfMonth').val()} ${$('#cronJobMonth').val()} ${parseInt($('#cronJobDayOfWeek').val()) - 1}`;
+        const newSchedule = `${$('#cronJobMinute').val()} ${$('#cronJobHour').val()} ${$('#cronJobDayOfMonth').val()} ${$('#cronJobMonth').val()} ${$('#cronJobDayOfWeek').val()}`;
         $('#cronJobExpression').val(newSchedule);
-        validateCronFields();
     });
 
     $('#editCronJobForm').off('submit').on('submit', function (event) {
         event.preventDefault();
         const newSchedule = $('#cronJobExpression').val();
-        if (validateCronFields()) {
+        if (isValidCronExpression(newSchedule)) {
             $('#updateButton').prop('disabled', true);
             $('#loadingSpinner').show();
             editCronJobSchedule(namespace, name, newSchedule);
@@ -155,52 +154,11 @@ function showEditCronJobModal(namespace, name, schedule) {
     });
 }
 
-function validateCronFields() {
-    let isValid = true;
 
-    const minute = $('#cronJobMinute').val();
-    const hour = $('#cronJobHour').val();
-    const dayOfMonth = $('#cronJobDayOfMonth').val();
-    const month = $('#cronJobMonth').val();
-    const dayOfWeek = $('#cronJobDayOfWeek').val();
-
-    if (minute < 0 || minute > 59) {
-        $('#cronJobMinute').addClass('is-invalid');
-        isValid = false;
-    } else {
-        $('#cronJobMinute').removeClass('is-invalid');
-    }
-
-    if (hour < 0 || hour > 23) {
-        $('#cronJobHour').addClass('is-invalid');
-        isValid = false;
-    } else {
-        $('#cronJobHour').removeClass('is-invalid');
-    }
-
-    if (dayOfMonth < 1 || dayOfMonth > 31) {
-        $('#cronJobDayOfMonth').addClass('is-invalid');
-        isValid = false;
-    } else {
-        $('#cronJobDayOfMonth').removeClass('is-invalid');
-    }
-
-    if (month < 1 || month > 12) {
-        $('#cronJobMonth').addClass('is-invalid');
-        isValid = false;
-    } else {
-        $('#cronJobMonth').removeClass('is-invalid');
-    }
-
-    if (dayOfWeek < 1 || dayOfWeek > 7) {
-        $('#cronJobDayOfWeek').addClass('is-invalid');
-        isValid = false;
-    } else {
-        $('#cronJobDayOfWeek').removeClass('is-invalid');
-    }
-
-    $('#updateButton').prop('disabled', !isValid);
-    return isValid;
+function isValidCronExpression(cronExpression) {
+    // Less strict regex for cron expression validation
+    const cronRegex = /^(\*|([0-5]?\d)|([0-5]?\d-\d+)|(\d+(,\d+)*)(\/\d+)?) (\*|([01]?\d|2[0-3])|([01]?\d-\d+)|(\d+(,\d+)*)(\/\d+)?) (\*|([1-9]|[12]\d|3[01])|([1-9]-\d+)|(\d+(,\d+)*)(\/\d+)?) (\*|([1-9]|1[0-2])|([1-9]-\d+)|(\d+(,\d+)*)(\/\d+)?) (\*|([0-6])|([0-6]-\d+)|(\d+(,\d+)*)(\/\d+)?)$/;
+    return cronRegex.test(cronExpression);
 }
 
 function editCronJobSchedule(namespace, name, schedule) {
@@ -222,12 +180,6 @@ function editCronJobSchedule(namespace, name, schedule) {
             $('#loadingSpinner').hide();
         }
     });
-}
-
-function isValidCronExpression(cronExpression) {
-    // Improved regex for cron expression validation
-    const cronRegex = /^(\*|([0-5]?\d)|([0-5]?\d-\d+)|(\d+(,\d+)*)) (\*|([01]?\d|2[0-3])|([01]?\d-\d+)|(\d+(,\d+)*)) (\*|([1-9]|[12]\d|3[01])|([1-9]-\d+)|(\d+(,\d+)*)) (\*|([1-9]|1[0-2])|([1-9]-\d+)|(\d+(,\d+)*)) (\*|([0-6])|([0-6]-\d+)|(\d+(,\d+)*))$/;
-    return cronRegex.test(cronExpression);
 }
 
 function createJobFromCronjob(namespace, cronjobName) {

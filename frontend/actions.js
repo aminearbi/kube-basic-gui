@@ -2,7 +2,7 @@ function showAlert(message, type) {
     const alert = $(`
         <div class="alert alert-${type} alert-dismissible fade show custom-alert" role="alert">
             ${message}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <button type="button" class="close" data-dismiss="alert" aria-label=-"Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -132,13 +132,14 @@ function showEditCronJobModal(namespace, name, schedule) {
     $('#cronJobHour').val(hour);
     $('#cronJobDayOfMonth').val(dayOfMonth);
     $('#cronJobMonth').val(month);
-    $('#cronJobDayOfWeek').val(dayOfWeek);
+    $('#cronJobDayOfWeek').val(parseInt(dayOfWeek) + 1); // Display day of week as 1-7
     $('#cronJobExpression').val(schedule);
     $('#editCronJobModal').modal('show');
 
     $('#editCronJobForm input').on('input', function () {
-        const newSchedule = `${$('#cronJobMinute').val()} ${$('#cronJobHour').val()} ${$('#cronJobDayOfMonth').val()} ${$('#cronJobMonth').val()} ${$('#cronJobDayOfWeek').val()}`;
+        const newSchedule = `${$('#cronJobMinute').val()} ${$('#cronJobHour').val()} ${$('#cronJobDayOfMonth').val()} ${$('#cronJobMonth').val()} ${parseInt($('#cronJobDayOfWeek').val()) - 1}`;
         $('#cronJobExpression').val(newSchedule);
+        validateCronFields();
     });
 
     $('#editCronJobForm').off('submit').on('submit', function (event) {
@@ -163,41 +164,42 @@ function validateCronFields() {
     const month = $('#cronJobMonth').val();
     const dayOfWeek = $('#cronJobDayOfWeek').val();
 
-    if (!/^(\*|([0-5]?\d)|([0-5]?\d-\d+)|(\d+(,\d+)*))$/.test(minute)) {
+    if (minute < 0 || minute > 59) {
         $('#cronJobMinute').addClass('is-invalid');
         isValid = false;
     } else {
         $('#cronJobMinute').removeClass('is-invalid');
     }
 
-    if (!/^(\*|([01]?\d|2[0-3])|([01]?\d-\d+)|(\d+(,\d+)*))$/.test(hour)) {
+    if (hour < 0 || hour > 23) {
         $('#cronJobHour').addClass('is-invalid');
         isValid = false;
     } else {
         $('#cronJobHour').removeClass('is-invalid');
     }
 
-    if (!/^(\*|([1-9]|[12]\d|3[01])|([1-9]-\d+)|(\d+(,\d+)*))$/.test(dayOfMonth)) {
+    if (dayOfMonth < 1 || dayOfMonth > 31) {
         $('#cronJobDayOfMonth').addClass('is-invalid');
         isValid = false;
     } else {
         $('#cronJobDayOfMonth').removeClass('is-invalid');
     }
 
-    if (!/^(\*|([1-9]|1[0-2])|([1-9]-\d+)|(\d+(,\d+)*))$/.test(month)) {
+    if (month < 1 || month > 12) {
         $('#cronJobMonth').addClass('is-invalid');
         isValid = false;
     } else {
         $('#cronJobMonth').removeClass('is-invalid');
     }
 
-    if (!/^(\*|([0-6])|([0-6]-\d+)|(\d+(,\d+)*))$/.test(dayOfWeek)) {
+    if (dayOfWeek < 1 || dayOfWeek > 7) {
         $('#cronJobDayOfWeek').addClass('is-invalid');
         isValid = false;
     } else {
         $('#cronJobDayOfWeek').removeClass('is-invalid');
     }
 
+    $('#updateButton').prop('disabled', !isValid);
     return isValid;
 }
 

@@ -111,54 +111,104 @@ function fetchPodLogs(namespace, name) {
     });
 }
 
+// =============== Pod Operations ===============
 function deletePod(namespace, name) {
     $.ajax({
         url: `/delete-pod/${namespace}/${name}`,
         type: 'DELETE',
-        success: function (response) {
+        success: function(response) {
             showAlert(`Pod "${name}" deleted successfully`, 'success');
             fetchResources(namespace);
         },
-        error: function (error) {
+        error: function(error) {
             showAlert(`Error deleting pod "${name}"`, 'danger');
         }
     });
 }
 
 function showEditCronJobModal(namespace, name, schedule) {
-    $('#editCronJobModalLabel').text(`Edit CronJob Schedule for ${name}`);
+    updateNamespaceDisplay(namespace);
     const [minute, hour, dayOfMonth, month, dayOfWeek] = schedule.split(' ');
+    
+    $('#editCronJobModalLabel').text(`Edit CronJob Schedule for ${name}`);
     $('#cronJobMinute').val(minute);
     $('#cronJobHour').val(hour);
     $('#cronJobDayOfMonth').val(dayOfMonth);
     $('#cronJobMonth').val(month);
-    $('#cronJobDayOfWeek').val(dayOfWeek); // Display day of week as entered
+    $('#cronJobDayOfWeek').val(dayOfWeek);
     $('#cronJobExpression').val(schedule);
+    
     $('#editCronJobModal').modal('show');
 
-    $('#editCronJobForm input').on('input', function () {
-        const newSchedule = `${$('#cronJobMinute').val()} ${$('#cronJobHour').val()} ${$('#cronJobDayOfMonth').val()} ${$('#cronJobMonth').val()} ${$('#cronJobDayOfWeek').val()}`;
+    // Handle real-time updates
+    $('#editCronJobForm input').on('input', function() {
+        const newSchedule = [
+            $('#cronJobMinute').val(),
+            $('#cronJobHour').val(),
+            $('#cronJobDayOfMonth').val(),
+            $('#cronJobMonth').val(),
+            $('#cronJobDayOfWeek').val()
+        ].join(' ');
+        
         $('#cronJobExpression').val(newSchedule);
     });
 
-    $('#editCronJobForm').off('submit').on('submit', function (event) {
+    // Handle form submission
+    $('#editCronJobForm').off('submit').on('submit', function(event) {
         event.preventDefault();
-        const newSchedule = $('#cronJobExpression').val();
-        if (isValidCronExpression(newSchedule)) {
+        const components = $('#cronJobExpression').val().split(' ');
+        
+        if (isValidCronExpression(components)) {
             $('#updateButton').prop('disabled', true);
             $('#loadingSpinner').show();
-            editCronJobSchedule(namespace, name, newSchedule);
+            editCronJobSchedule(namespace, name, components.join(' '));
         } else {
             showAlert('Invalid cron expression', 'danger');
         }
     });
 }
 
+// =============== CronJob Schedule Operations ===============
+function validateScheduleComponent(value, min, max) {
+    // Handle empty or invalid input
+    if (!value || value.trim() === '') return false;
 
-function isValidCronExpression(cronExpression) {
-    // Less strict regex for cron expression validation
-    const cronRegex = /^(\*|([0-5]?\d)|([0-5]?\d-\d+)|(\d+(,\d+)*)(\/\d+)?) (\*|([01]?\d|2[0-3])|([01]?\d-\d+)|(\d+(,\d+)*)(\/\d+)?) (\*|([1-9]|[12]\d|3[01])|([1-9]-\d+)|(\d+(,\d+)*)(\/\d+)?) (\*|([1-9]|1[0-2])|([1-9]-\d+)|(\d+(,\d+)*)(\/\d+)?) (\*|([0-6])|([0-6]-\d+)|(\d+(,\d+)*)(\/\d+)?)$/;
-    return cronRegex.test(cronExpression);
+    // Handle asterisk
+    if (value === '*') return true;
+
+    // Handle steps (*/n)
+    if (value.includes('/')) {
+        const [range, step] = value.split('/');
+        if (range !== '*' && !validateScheduleComponent(range, min, max)) return false;
+        return parseInt(step) > 0;
+    }
+
+    // Handle ranges (n-m)
+    if (value.includes('-')) {
+        const [start, end] = value.split('-').map(Number);
+        return start >= min && start <= end && end <= max;
+    }
+
+    // Handle lists (n,m,p)
+    if (value.includes(',')) {
+        return value.split(',').every(v => validateScheduleComponent(v, min, max));
+    }
+
+    // Handle single values
+    const num = parseInt(value);
+    return num >= min && num <= max;
+}
+
+function isValidCronExpression(components) {
+    if (components.length !== 5) return false;
+
+    return (
+        validateScheduleComponent(components[0], 0, 59) && // minute
+        validateScheduleComponent(components[1], 0, 23) && // hour
+        validateScheduleComponent(components[2], 1, 31) && // day of month
+        validateScheduleComponent(components[3], 1, 12) && // month
+        validateScheduleComponent(components[4], 0, 6)     // day of week
+    );
 }
 
 function editCronJobSchedule(namespace, name, schedule) {

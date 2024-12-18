@@ -2,6 +2,7 @@ let currentNamespace = '';
 let podsInterval;
 
 function fetchResources(namespace) {
+    updateNamespaceDisplay(namespace);
     currentNamespace = namespace;
     $('#deployments-section').empty();
     $('#statefulsets-section').empty();

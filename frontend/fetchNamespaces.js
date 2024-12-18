@@ -19,3 +19,7 @@ function fetchNamespaces() {
         console.error('Failed to fetch namespaces');
     });
 }
+
+function updateNamespaceDisplay(namespace) {
+    $('#currentNamespace').text(`:${namespace}`);
+}

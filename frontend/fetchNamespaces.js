@@ -23,3 +23,23 @@ function fetchNamespaces() {
 function updateNamespaceDisplay(namespace) {
     $('#currentNamespace').text(`:${namespace}`);
 }
+
+function filterNamespaces() {
+    const searchValue = $('#namespaceSearch').val().toLowerCase();
+    $('#namespaces li').each(function() {
+        const namespace = $(this).text().toLowerCase();
+        if (namespace.includes(searchValue)) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+}
+
+$(document).ready(function() {
+    fetchNamespaces();
+
+    $('#namespaceSearch').on('input', function() {
+        filterNamespaces();
+    });
+});

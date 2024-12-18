@@ -217,3 +217,32 @@ function submitScaleModal() {
     const type = $('#scaleModalType').val();
     submitScale(namespace, name, replicas, type);
 }
+
+$(document).ready(function () {
+    showSection('deployments-section'); // Show deployments section by default
+    loadNamespace(); // Load the last selected namespace
+
+    // Load the saved theme
+    var savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'alternative') {
+        $('#themeButton').text('Switch to Default Theme');
+        $('#themeStylesheet').attr('href', 'alternative-theme.css');
+    } else {
+        $('#themeButton').text('Switch to Alternative Theme');
+        $('#themeStylesheet').attr('href', 'default-theme.css');
+    }
+
+    // Search logs
+    $('#logSearch').on('input', function () {
+        var searchTerm = $(this).val().toLowerCase();
+        $('#logsModalBody').html(function (_, html) {
+            return html.replace(/<mark>/g, '').replace(/<\/mark>/g, '');
+        });
+        if (searchTerm) {
+            $('#logsModalBody').html(function (_, html) {
+                var regex = new RegExp('(' + searchTerm + ')', 'gi');
+                return html.replace(regex, '<mark>$1</mark>');
+            });
+        }
+    });
+});

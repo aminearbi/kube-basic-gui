@@ -255,12 +255,12 @@ function showRelatedJobs(namespace, cronjobName) {
             relatedJobsList.empty();
             data.jobs.forEach(job => {
                 relatedJobsList.append(`
-                    <tr>
+                    <tr id="job-${job.name}">
                         <td>${job.name}</td>
                         <td>${job.status}</td>
                         <td>${job.age} minutes</td>
                         <td>
-                            <button class="btn btn-danger btn-sm" onclick="deleteJob('${namespace}', '${job.name}')">Delete</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteJob('${namespace}', '${job.name}', '${cronjobName}')">Delete</button>
                         </td>
                     </tr>
                 `);
@@ -272,21 +272,17 @@ function showRelatedJobs(namespace, cronjobName) {
         });
 }
 
-function deleteJob(namespace, jobName) {
-    fetch(`/delete-job/${namespace}/${jobName}`, {
-        method: 'DELETE'
-    })
-    .then(response => response.json())
-    .then(data => {
-        showAlert(`Job "${jobName}" deleted successfully`, 'success');
-        // Wait for 3 seconds before refreshing the related jobs list
-        setTimeout(() => {
-            const cronjobName = $('#relatedJobsModal').data('cronjob-name');
-            showRelatedJobs(namespace, cronjobName);
-        }, 3000);
-    })
-    .catch(error => {
-        showAlert(`Error deleting job "${jobName}"`, 'danger');
-        console.error('Error deleting job:', error);
+function deleteJob(namespace, jobName, cronjobName) {
+    $.ajax({
+        url: `/delete-job/${namespace}/${jobName}`,
+        type: 'DELETE',
+        success: function(response) {
+            showAlert(`Job "${jobName}" deleted successfully`, 'success');
+            $(`#job-${jobName}`).remove(); // Remove the job row from the table
+        },
+        error: function(error) {
+            showAlert(`Error deleting job "${jobName}"`, 'danger');
+        }
     });
 }
+

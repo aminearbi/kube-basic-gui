@@ -21,6 +21,9 @@ def get_statefulset_pods(namespace, statefulset_name):
     v1 = get_core_v1_api()
     label_selector = f"app={statefulset_name}"
     pods = v1.list_namespaced_pod(namespace, label_selector=label_selector).items
+    if len(pods)==0:
+        label_selector = f"app.kubernetes.io/name={statefulset_name}"
+        pods = v1.list_namespaced_pod(namespace, label_selector=label_selector).items
     pod_list = [{'name': pod.metadata.name, 'state': pod.status.phase, 'start_time': pod.status.start_time} for pod in pods]
     return jsonify({'pods': pod_list})
 
@@ -29,6 +32,11 @@ def get_deployment_pods(namespace, deployment_name):
     v1 = get_core_v1_api()
     label_selector = f"app={deployment_name}"
     pods = v1.list_namespaced_pod(namespace, label_selector=label_selector).items
+    print (len(pods))
+    if len(pods)==0:
+        label_selector = f"app.kubernetes.io/name={deployment_name}"
+        print (len(pods))
+        pods = v1.list_namespaced_pod(namespace, label_selector=label_selector).items
     pod_list = [{'name': pod.metadata.name, 'state': pod.status.phase, 'start_time': pod.status.start_time} for pod in pods]
     return jsonify({'pods': pod_list})
 

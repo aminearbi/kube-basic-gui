@@ -30,7 +30,7 @@ function fetchPVCs(namespace) {
     $.get(`/pvcs/${namespace}`, function(data) {
         console.log('PVCs:', data);
         const pvcs = data.pvcs;
-        const pvcsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>Status</th><th>Volume</th><th>Capacity</th><th>Access Modes</th><th>Storage Class</th></tr></thead>');
+        const pvcsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>Status</th><th>Capacity</th><th>Access Modes</th><th>Storage Class</th></tr></thead>');
         const pvcsBody = $('<tbody></tbody>');
         pvcs.forEach(pvc => {
             const accessModes = pvc.access_modes ? pvc.access_modes.join(', ') : 'N/A';
@@ -38,7 +38,6 @@ function fetchPVCs(namespace) {
                 <tr>
                     <td>${pvc.name}</td>
                     <td>${pvc.status}</td>
-                    <td>${pvc.volume}</td>
                     <td>${pvc.capacity}</td>
                     <td>${accessModes}</td>
                     <td>${pvc.storage_class}</td>

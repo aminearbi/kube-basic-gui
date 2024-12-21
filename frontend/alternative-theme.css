@@ -1,6 +1,7 @@
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #000814; /* Rich Black */
+    background-color: #0B2545; /* Very Dark Blue background color */
+    color: #EEF4ED; /* Very Light Gray text color */
     margin: 0;
     padding: 0;
     display: flex;
@@ -9,8 +10,8 @@ body {
 }
 
 .sidebar {
-    background-color: #000814; /* Rich Black */
-    color: #ffffff;
+    background-color: #13315C; /* Dark Grayish Blue for sidebar */
+    color: #EEF4ED; /* Very Light Gray text color */
     padding: 15px;
     height: 100vh;
     position: fixed;
@@ -24,19 +25,19 @@ body {
 }
 
 .sidebar h4 {
-    color: #FFC300; /* Yellow Orange */
+    color: #8DA9C4; /* Light Grayish Blue */
     animation: fadeIn 1s ease-in-out; /* Fade-in animation */
 }
 
 .sidebar .list-group-item {
-    background-color: #001D3D; /* Oxford Blue */
-    color: #ffffff;
+    background-color: #134074; /* Dark Blue */
+    color: #EEF4ED; /* Very Light Gray text color */
     border: none;
     transition: background-color 0.3s ease; /* Smooth transition */
 }
 
 .sidebar .list-group-item:hover {
-    background-color: #003566; /* Prussian Blue */
+    background-color: #8DA9C4; /* Light Grayish Blue */
     transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
@@ -44,12 +45,86 @@ body {
     margin-left: 250px; /* Adjust this value based on the width of the sidebar */
     padding: 20px;
     flex: 1;
-    background-color: #001D3D; /* Oxford Blue */
-    color: #ffffff; /* White text */
+    background-color: #13315C; /* Dark Grayish Blue for main content */
+    color: #EEF4ED; /* Very Light Gray text color */
     overflow-y: auto; /* Add this line to enable scrolling */
     overflow-x: hidden; /* Prevent horizontal scrolling */
     transition: all 0.3s ease; /* Smooth transition */
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+}
+
+.navbar {
+    background-color: #134074; /* Dark Blue for Navbar */
+    color: #EEF4ED; /* Very Light Gray text color */
+}
+
+.btn-primary {
+    background-color: #80d000; /* Red */
+    border-color: #76d000; /* Red */
+    color: #EEF4ED; /* Very Light Gray text color */
+}
+
+.btn-primary:hover {
+    background-color: #b5ff08; /* Yellow */
+    border-color: #d2ff08; /* Yellow */
+    color: #032B43; /* Dark Blue */
+}
+
+.btn-outline-primary {
+    color: #D00000; /* Red */
+    border-color: #D00000; /* Red */
+}
+
+.btn-outline-primary:hover {
+    background-color: #D00000; /* Red */
+    color: #EEF4ED; /* Very Light Gray text color */
+}
+
+.btn-outline-secondary {
+    color: #FFBA08; /* Yellow */
+    border-color: #FFBA08; /* Yellow */
+}
+
+.btn-outline-secondary:hover {
+    background-color: #FFBA08; /* Yellow */
+    color: #032B43; /* Dark Blue */
+}
+
+.btn-outline-success {
+    color: #136F63; /* Green */
+    border-color: #136F63; /* Green */
+}
+
+.btn-outline-success:hover {
+    background-color: #136F63; /* Green */
+    color: #EEF4ED; /* Very Light Gray text color */
+}
+
+.btn-outline-info {
+    color: #3F88C5; /* Blue */
+    border-color: #3F88C5; /* Blue */
+}
+
+.btn-outline-info:hover {
+    background-color: #3F88C5; /* Blue */
+    color: #EEF4ED; /* Very Light Gray text color */
+}
+
+.sidebar h4 {
+    color: #8DA9C4; /* Light Grayish Blue */
+    animation: fadeIn 1s ease-in-out; /* Fade-in animation */
+}
+
+.sidebar .list-group-item {
+    background-color: #134074; /* Dark Blue */
+    color: #EEF4ED; /* Very Light Gray text color */
+    border: none;
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.sidebar .list-group-item:hover {
+    background-color: #8DA9C4; /* Light Grayish Blue */
+    transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
 .main h4 {
@@ -84,12 +159,12 @@ body {
 }
 
 .btn-primary {
-    background-color: #FFC300; /* Yellow Orange */
+    background-color: #007BFF; /* Bootstrap Primary Blue */
     border-color: #FFC300;
 }
 
 .btn-primary:hover {
-    background-color: #FFD60A; /* Slightly darker Yellow Orange */
+    background-color: #FFD60A; /* Slightly darker Yellow */
     border-color: #FFD60A;
     transform: scale(1.05); /* Slightly enlarge on hover */
 }
@@ -230,4 +305,42 @@ mark {
     .btn-group .btn {
         margin-bottom: 10px;
     }
+}
+
+.navbar {
+    background-color: #134074; /* Dark Blue for Navbar */
+    color: #EEF4ED; /* Very Light Gray text color */
+}
+
+.btn-outline-primary {
+    color: #EEF4ED;
+    border-color: #EEF4ED;
+}
+
+.btn-outline-primary:hover {
+    background-color: #EEF4ED;
+    color: #0B2545;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #134074; /* Dark Blue for table row */
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: #8DA9C4; /* Light Grayish Blue for table row */
+}
+
+.table thead th {
+    background-color: #13315C; /* Dark Grayish Blue for table header */
+    color: #EEF4ED; /* Very Light Gray text color */
+}
+
+.list-group-item {
+    background-color: #134074; /* Dark Blue for list group item */
+    color: #EEF4ED; /* Very Light Gray text color */
+}
+
+.list-group-item:hover {
+    background-color: #8DA9C4; /* Light Grayish Blue for list group item hover */
+    color: #EEF4ED; /* Very Light Gray text color */
 }

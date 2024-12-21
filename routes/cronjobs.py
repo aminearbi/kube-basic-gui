@@ -1,22 +1,37 @@
+import logging
 from flask import Blueprint, jsonify, request
-from kubernetes_client import get_batch_v1_api, get_core_v1_api
-from kubernetes import client, config
-from kubernetes.client import V1Job, V1ObjectMeta, V1JobSpec, V1PodTemplateSpec, V1PodSpec, V1Container
-from kubernetes_client import is_valid_cron_expression
+from kubernetes import client
+from kubernetes_client import get_batch_v1beta1_api, get_batch_v1_api, get_core_v1_api, is_valid_cron_expression
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 cronjobs_bp = Blueprint('cronjobs', __name__)
 
-
-
 @cronjobs_bp.route('/cronjobs/<namespace>')
 def get_cronjobs(namespace):
-    batch_v1 = get_batch_v1_api()
-    cronjobs = batch_v1.list_namespaced_cron_job(namespace).items
-    logger.info(f'Found {len(cronjobs)} cronjobs in namespace {namespace}')
-    cronjob_list = [{'name': cj.metadata.name, 'schedule': cj.spec.schedule} for cj in cronjobs]
-    logger.debug(f'Cronjobs: {cronjob_list}')
-    return jsonify({'cronjobs': cronjob_list})
+    logger.info(f'Fetching cronjobs for namespace: {namespace}')
+    try:
+        batch_v1beta1 = get_batch_v1beta1_api()
+        cronjobs = batch_v1beta1.list_namespaced_cron_job(namespace).items
+        cronjob_list = [{'name': cj.metadata.name, 'schedule': cj.spec.schedule, 'suspend': cj.spec.suspend} for cj in cronjobs]
+        logger.info(f'Successfully fetched {len(cronjob_list)} cronjobs for namespace: {namespace}')
+        return jsonify({'cronjobs': cronjob_list})
+    except Exception as e:
+        logger.error(f'Error fetching cronjobs for namespace {namespace}: {e}')
+        return jsonify({'error': str(e)}), 500
 
+@cronjobs_bp.route('/delete-cronjob/<namespace>/<cronjob_name>', methods=['DELETE'])
+def delete_cronjob(namespace, cronjob_name):
+    logger.info(f'Deleting cronjob: {cronjob_name} in namespace: {namespace}')
+    try:
+        batch_v1beta1 = get_batch_v1beta1_api()
+        response = batch_v1beta1.delete_namespaced_cron_job(name=cronjob_name, namespace=namespace)
+        logger.info(f'Successfully deleted cronjob: {cronjob_name} in namespace: {namespace}')
+        return jsonify({'message': 'CronJob deleted successfully', 'response': response.to_dict()})
+    except Exception as e:
+        logger.error(f'Error deleting cronjob {cronjob_name} in namespace {namespace}: {e}')
+        return jsonify({'error': str(e)}), 500
 
 @cronjobs_bp.route('/delete-job/<namespace>/<job_name>', methods=['DELETE'])
 def delete_job(namespace, job_name):
@@ -56,4 +71,3 @@ def edit_cronjob(namespace, cronjob_name):
         except client.rest.ApiException as e:
             logger.error(f'Error updating cronjob: {e}')
             return jsonify({'error': 'Error updating cronjob'}), 500
-

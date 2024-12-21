@@ -1,3 +1,4 @@
+import logging
 from flask import Flask, send_from_directory
 from kubernetes_client import load_kube_config
 from routes.namespaces import namespaces_bp
@@ -9,11 +10,11 @@ from routes.events import events_bp
 from routes.cronjobs import cronjobs_bp
 from routes.jobs import jobs_bp
 
-app = Flask(__name__, static_folder='frontend', static_url_path='')
-
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+app = Flask(__name__, static_folder='frontend', static_url_path='')
 
 # Load Kubernetes config
 load_kube_config()
@@ -37,5 +38,4 @@ def serve_static(path):
     return send_from_directory(app.static_folder, path)
 
 if __name__ == "__main__":
-    logger.info('Starting the application')
-    app.run(port=8080,host="0.0.0.0", debug=True)
+    app.run(port=8080, host="0.0.0.0")

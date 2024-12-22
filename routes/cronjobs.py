@@ -12,8 +12,8 @@ cronjobs_bp = Blueprint('cronjobs', __name__)
 def get_cronjobs(namespace):
     logger.info(f'Fetching cronjobs for namespace: {namespace}')
     try:
-        batch_v1beta1 = get_batch_v1beta1_api()
-        cronjobs = batch_v1beta1.list_namespaced_cron_job(namespace).items
+        batch_v1 = get_batch_v1_api()
+        cronjobs = batch_v1.list_namespaced_cron_job(namespace).items
         cronjob_list = [{'name': cj.metadata.name, 'schedule': cj.spec.schedule, 'suspend': cj.spec.suspend} for cj in cronjobs]
         logger.info(f'Successfully fetched {len(cronjob_list)} cronjobs for namespace: {namespace}')
         return jsonify({'cronjobs': cronjob_list})
@@ -71,3 +71,37 @@ def edit_cronjob(namespace, cronjob_name):
         except client.rest.ApiException as e:
             logger.error(f'Error updating cronjob: {e}')
             return jsonify({'error': 'Error updating cronjob'}), 500
+
+@cronjobs_bp.route('/cronjobs/suspend/<namespace>/<name>', methods=['PATCH'])
+def suspend_cronjob(namespace, name):
+    logger.info(f'Suspending cronjob {name} in namespace {namespace}')
+    try:
+        batch_v1 = get_batch_v1_api()
+        body = {
+            "spec": {
+                "suspend": True
+            }
+        }
+        batch_v1.patch_namespaced_cron_job(name, namespace, body)
+        logger.info(f'Successfully suspended cronjob {name} in namespace {namespace}')
+        return jsonify({'message': f'Cronjob {name} suspended successfully'})
+    except Exception as e:
+        logger.error(f'Error suspending cronjob {name} in namespace {namespace}: {e}')
+        return jsonify({'error': str(e)}), 500
+
+@cronjobs_bp.route('/cronjobs/continue/<namespace>/<name>', methods=['PATCH'])
+def continue_cronjob(namespace, name):
+    logger.info(f'Continuing cronjob {name} in namespace {namespace}')
+    try:
+        batch_v1 = get_batch_v1_api()
+        body = {
+            "spec": {
+                "suspend": False
+            }
+        }
+        batch_v1.patch_namespaced_cron_job(name, namespace, body)
+        logger.info(f'Successfully continued cronjob {name} in namespace {namespace}')
+        return jsonify({'message': f'Cronjob {name} continued successfully'})
+    except Exception as e:
+        logger.error(f'Error continuing cronjob {name} in namespace {namespace}: {e}')
+        return jsonify({'error': str(e)}), 500

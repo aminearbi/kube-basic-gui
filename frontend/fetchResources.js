@@ -1,5 +1,6 @@
 let currentNamespace = '';
 let podsInterval;
+let eventsInterval;
 
 function fetchResources(namespace) {
     updateNamespaceDisplay(namespace);
@@ -24,6 +25,16 @@ function fetchResources(namespace) {
     podsInterval = setInterval(function() {
         fetchAllPods(currentNamespace, 1);
     }, 30000); // Update every 30 seconds
+
+    // Clear any existing events interval
+    if (eventsInterval) {
+        clearInterval(eventsInterval);
+    }
+
+    // Set up periodic update for the events
+    eventsInterval = setInterval(function() {
+        fetchEvents(currentNamespace);
+    }, 10000); // Update every 10 seconds
 }
 
 function fetchPVCs(namespace) {
@@ -113,29 +124,69 @@ function fetchStatefulSets(namespace) {
 }
 
 function fetchCronJobs(namespace) {
+    console.log(`Fetching cronjobs for namespace: ${namespace}`);
     $.get(`/cronjobs/${namespace}`, function(data) {
         console.log('CronJobs:', data);
         const cronjobs = data.cronjobs;
-        const cronjobsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>Schedule</th><th>Actions</th></tr></thead>');
+        const cronjobsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>Schedule</th><th>Status</th><th>Actions</th></tr></thead>');
         const cronjobsBody = $('<tbody></tbody>');
         cronjobs.forEach(cj => {
+            const actionButton = cj.suspend
+                ? `<button class="btn btn-info btn-sm" onclick="continueCronJob('${namespace}', '${cj.name}')">Continue</button>`
+                : `<button class="btn btn-warning btn-sm" onclick="suspendCronJob('${namespace}', '${cj.name}')">Suspend</button>`;
             const cronjobRow = $(`
                 <tr>
                     <td>${cj.name}</td>
                     <td>${cj.schedule}</td>
+                    <td>${cj.suspend ? 'Suspended' : 'Active'}</td>
                     <td>
                         <button class="btn btn-secondary btn-sm" onclick="showRelatedJobs('${namespace}', '${cj.name}')">View Jobs</button>
                         <button class="btn btn-primary btn-sm" onclick="showEditCronJobModal('${namespace}', '${cj.name}', '${cj.schedule}')">Edit Schedule</button>
                         <button class="btn btn-success btn-sm" onclick="createJobFromCronjob('${namespace}', '${cj.name}')">Create Job</button>
+                        ${actionButton}
                     </td>
                 </tr>
             `);
             cronjobsBody.append(cronjobRow);
         });
         cronjobsTable.append(cronjobsBody);
-        $('#cronjobs-section').append('<h5>CronJobs</h5>').append(cronjobsTable);
+        $('#cronjobs-section').empty().append('<h5>CronJobs</h5>').append(cronjobsTable);
     }).fail(function() {
         console.error('Failed to fetch cronjobs');
+    });
+}
+
+function suspendCronJob(namespace, name) {
+    console.log(`Suspending cronjob ${name} in namespace ${namespace}`);
+    $.ajax({
+        url: `/cronjobs/suspend/${namespace}/${name}`,
+        type: 'PATCH',
+        success: function(response) {
+            console.log(response.message);
+            showAlert(`Cronjob "${name}" suspended successfully`, 'success');
+            fetchResources(namespace);
+        },
+        error: function(error) {
+            console.error(`Error suspending cronjob ${name}:`, error);
+            showAlert(`Error suspending cronjob "${name}"`, 'danger');
+        }
+    });
+}
+
+function continueCronJob(namespace, name) {
+    console.log(`Continuing cronjob ${name} in namespace ${namespace}`);
+    $.ajax({
+        url: `/cronjobs/continue/${namespace}/${name}`,
+        type: 'PATCH',
+        success: function(response) {
+            console.log(response.message);
+            showAlert(`Cronjob "${name}" continued successfully`, 'success');
+            fetchResources(namespace);
+        },
+        error: function(error) {
+            console.error(`Error continuing cronjob ${name}:`, error);
+            showAlert(`Error continuing cronjob "${name}"`, 'danger');
+        }
     });
 }
 
@@ -215,6 +266,32 @@ function submitScaleModal() {
     const replicas = $('#scaleModalReplicas').val();
     const type = $('#scaleModalType').val();
     submitScale(namespace, name, replicas, type);
+}
+
+function fetchEvents(namespace) {
+    console.log(`Fetching events for namespace: ${namespace}`);
+    $.get(`/events/${namespace}`, function(data) {
+        console.log('Events data:', data);
+        const eventsList = $('#eventsList');
+        eventsList.empty();
+        data.events.forEach(event => {
+            eventsList.append(`<li>${event.timestamp}: ${event.message}</li>`);
+        });
+    }).fail(function() {
+        console.error('Failed to fetch events');
+    });
+}
+
+function startFetchingEvents() {
+    const namespace = $('#namespaces').val();
+    fetchEvents(namespace);
+    eventsInterval = setInterval(function() {
+        fetchEvents(namespace);
+    }, 10000);
+}
+
+function stopFetchingEvents() {
+    clearInterval(eventsInterval);
 }
 
 $(document).ready(function () {

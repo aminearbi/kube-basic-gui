@@ -286,3 +286,13 @@ function deleteJob(namespace, jobName, cronjobName) {
     });
 }
 
+function toggleEventsSidebar() {
+    const sidebar = document.getElementById("eventsSidebar");
+    if (sidebar.style.width === "0px" || sidebar.style.width === "") {
+        sidebar.style.width = "300px";
+        startFetchingEvents();
+    } else {
+        sidebar.style.width = "0";
+        stopFetchingEvents();
+    }
+}

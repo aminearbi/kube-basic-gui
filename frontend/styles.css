@@ -1,231 +1,36 @@
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #EEF4ED; /* Honeydew */
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
-
-.sidebar {
-    background-color: #13315C; /* Space Cadet */
-    color: #ffffff;
-    padding: 15px;
-    height: 100vh;
+/* Add styles for the events sidebar */
+#eventsSidebar {
     position: fixed;
     top: 0;
-    bottom: 0;
-    left: 0;
-    overflow-y: auto;
-    width: 250px; /* Set a fixed width for the sidebar */
-    transition: all 0.3s ease; /* Smooth transition */
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+    right: 0;
+    width: 0;
+    height: 100%;
+    overflow-x: hidden;
+    transition: 0.5s;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding-top: 60px;
+    z-index: 1000;
 }
-
-.sidebar h4 {
-    color: #8DA9C4; /* Light Steel Blue */
-    animation: fadeIn 1s ease-in-out; /* Fade-in animation */
-}
-
-.sidebar .list-group-item {
-    background-color: #13315C; /* Space Cadet */
-    color: #ffffff;
-    border: none;
-    transition: background-color 0.3s ease; /* Smooth transition */
-}
-
-.sidebar .list-group-item:hover {
-    background-color: #0B2545; /* Oxford Blue */
-    transform: scale(1.05); /* Slightly enlarge on hover */
-}
-
-.main {
-    margin-left: 250px; /* Adjust this value based on the width of the sidebar */
-    padding: 20px;
-    flex: 1;
-    background-color: #ffffff; /* Keep the main area white */
-    overflow-y: auto; /* Add this line to enable scrolling */
-    overflow-x: hidden; /* Prevent horizontal scrolling */
-    transition: all 0.3s ease; /* Smooth transition */
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
-}
-
-.main h4 {
-    margin-bottom: 20px;
-    color: #13315C; /* Space Cadet */
-    animation: fadeIn 1s ease-in-out; /* Fade-in animation */
-}
-
-.btn-group {
-    margin-bottom: 20px;
-}
-
-.table {
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease; /* Smooth transition */
-}
-
-.table th {
-    background-color: #8DA9C4; /* Light Steel Blue */
-    color: #ffffff;
-}
-
-.table td {
-    vertical-align: middle;
-}
-
-.btn {
-    margin-right: 5px;
-    transition: all 0.3s ease; /* Smooth transition */
-}
-
-.btn-primary {
-    background-color: #8DA9C4; /* Light Steel Blue */
-    border-color: #8DA9C4;
-}
-
-.btn-primary:hover {
-    background-color: #13315C; /* Slightly darker Light Steel Blue */
-    border-color: #13315C;
-    transform: scale(1.05); /* Slightly enlarge on hover */
-}
-
-.btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
-}
-
-.btn-success:hover {
-    background-color: #218838;
-    border-color: #218838;
-    transform: scale(1.05); /* Slightly enlarge on hover */
-}
-
-.btn-danger {
-    background-color: #D90429; /* Red (Pigment) */
-    border-color: #D90429;
-}
-
-.btn-danger:hover {
-    background-color: #EF233C; /* Slightly darker Red (Pigment) */
-    border-color: #EF233C;
-    transform: scale(1.05); /* Slightly enlarge on hover */
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #5a6268;
-    transform: scale(1.05); /* Slightly enlarge on hover */
-}
-
-.modal-header {
-    background-color: #8DA9C4; /* Light Steel Blue */
-    color: #ffffff;
-    border-bottom: 2px solid #D90429; /* Add a border for emphasis */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
-}
-
-.modal-body {
-    background-color: #f8f9fa; /* Light gray background for contrast */
-    color: #13315C; /* Space Cadet text */
-    padding: 20px;
-    max-height: 70vh; /* Limit height to avoid overflow */
-    overflow-y: auto; /* Enable vertical scrolling */
-    border-radius: 0 0 10px 10px; /* Rounded corners at the bottom */
-    max-width: 80vw; /* Set a max width to enable text wrap */
-}
-
-.modal-footer {
-    background-color: #f8f9fa; /* Light gray background for contrast */
-    border-top: 2px solid #D90429; /* Add a border for emphasis */
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
-}
-
-.modal-footer .btn-primary {
-    background-color: #8DA9C4; /* Light Steel Blue */
-    border-color: #8DA9C4;
-}
-
-.modal-footer .btn-primary:hover {
-    background-color: #13315C; /* Slightly darker Light Steel Blue */
-    border-color: #13315C;
-    transform: scale(1.05); /* Slightly enlarge on hover */
-}
-
-.loading-spinner {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: none;
-}
-
-.resource-section {
-    display: none;
-}
-
-.search-container {
-    margin-bottom: 10px;
-}
-
-.search-container input {
-    width: 100%;
+#eventsSidebar h5 {
+    margin-top: 0;
     padding: 10px;
-    border: 1px solid #8DA9C4; /* Light Steel Blue */
+}
+#eventsSidebar .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+#eventsList {
+    padding: 10px;
+}
+#eventsList li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 5px;
-    background-color: #EEF4ED; /* Honeydew */
-    color: #13315C; /* Space Cadet */
-    font-size: 16px;
-}
-
-#logsModalBody {
-    white-space: pre-wrap; /* Wrap text to fit the modal */
-    word-wrap: break-word; /* Break long words to fit the modal */
-    width: 150px;
-}
-
-mark {
-    background-color: #D90429; /* Red (Pigment) */
-    color: #ffffff; /* White text for contrast */
 }
 
 /* Fade-in animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        box-shadow: none; /* Remove shadow on small screens */
-    }
-
-    .main {
-        margin-left: 0;
-        padding: 10px;
-        box-shadow: none; /* Remove shadow on small screens */
-    }
-
-    .btn-group {
-        flex-direction: column;
-    }
-
-    .btn-group .btn {
-        margin-bottom: 10px;
-    }
-}

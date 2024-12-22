@@ -1,6 +1,9 @@
+import logging
 from kubernetes import client, config
 from croniter import croniter
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 def is_valid_cron_expression(cron_expression):
     try:
@@ -10,7 +13,6 @@ def is_valid_cron_expression(cron_expression):
     except (ValueError, KeyError):
         logger.error('Cron expression is invalid')
         return False
-
 
 def load_kube_config():
     config.load_kube_config()
@@ -23,3 +25,6 @@ def get_apps_v1_api():
 
 def get_batch_v1_api():
     return client.BatchV1Api()
+
+def get_batch_v1beta1_api():
+    return client.BatchV1Api()  # Updated to use BatchV1Api for cronjobs

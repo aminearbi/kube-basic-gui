@@ -7,6 +7,7 @@
     <title>Kubernetes GUI</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link id="themeStylesheet" href="default-theme.css" rel="stylesheet"> <!-- Include the default theme CSS file -->
+    <link href="styles.css" rel="stylesheet"> <!-- Include the new styles CSS file -->
 </head>
 
 <body>
@@ -25,6 +26,7 @@
                     <h4>Resources <span id="currentNamespace">: default</span></h4>
                     <button id="themeButton" class="btn btn-outline-secondary" onclick="toggleTheme()">Switch to
                         Alternative Theme</button>
+                    <button id="eventsButton" class="btn btn-outline-secondary" onclick="toggleEventsSidebar()">Show Events</button>
                 </div>
                 <div class="btn-group" role="group" aria-label="Resource Selection">
                     <button type="button" class="btn btn-outline-primary"
@@ -56,6 +58,13 @@
                 </div>
             </main>
         </div>
+    </div>
+    <div id="eventsSidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="toggleEventsSidebar()">&times;</a>
+        <h5>Namespace Events</h5>
+        <ul id="eventsList" class="list-unstyled">
+            <!-- Events will be populated here -->
+        </ul>
     </div>
 
     <!-- Scale Modal -->
@@ -201,51 +210,28 @@
     </div>
 </div>
 
-<!-- CronJobs Section -->
-<div id="cronjobs-section" class="resource-section">
-    <table class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Schedule</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="cronjobsList">
-            <!-- CronJobs will be listed here -->
-            <tr>
-                <td>example-cronjob</td>
-                <td>*/3 * * * *</td>
-                <td>
-                    <button type="button" class="btn btn-secondary show-related-jobs-button" data-cronjob-name="example-cronjob" data-namespace="default">View Jobs</button>
-                    <button type="button" class="btn btn-primary edit-schedule-button" data-cronjob-name="example-cronjob" data-namespace="default">Edit Schedule</button>
-                    <button type="button" class="btn btn-success create-job-button" data-cronjob-name="example-cronjob" data-namespace="default">Create Job</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="fetchNamespaces.js"></script>
     <script src="fetchResources.js"></script>
     <script src="actions.js"></script>
     <script>
-        function showSection(sectionId) {
-            $('.resource-section').hide();
-            $('#' + sectionId).show();
-        }
+    function showSection(sectionId) {
+        $('.resource-section').hide();
+        $('#' + sectionId).show();
+}
 
         function saveNamespace() {
             var selectedNamespace = $('#namespaces').val();
             localStorage.setItem('selectedNamespace', selectedNamespace);
+            fetchEvents(selectedNamespace);
         }
 
         function loadNamespace() {
             var selectedNamespace = localStorage.getItem('selectedNamespace');
             if (selectedNamespace) {
                 $('#namespaces').val(selectedNamespace);
+                fetchEvents(selectedNamespace);
             }
         }
 
@@ -262,7 +248,19 @@
             }
         }
 
-
+        // Load namespace on page load
+        $(document).ready(function() {
+            loadNamespace();
+            // Load the current theme
+            const currentTheme = localStorage.getItem('theme') || 'default';
+            if (currentTheme === 'alternative') {
+                $('#themeButton').text('Switch to Default Theme');
+                $('#themeStylesheet').attr('href', 'alternative-theme.css');
+            } else {
+                $('#themeButton').text('Switch to Alternative Theme');
+                $('#themeStylesheet').attr('href', 'default-theme.css');
+            }
+        });
     </script>
 </body>
 

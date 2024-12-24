@@ -64,9 +64,6 @@ function fetchPVCs(namespace) {
 }
 
 
-
-
-
 function fetchDeployments(namespace) {
     $.get(`/deployments/${namespace}`, function(data) {
         console.log('Deployments:', data);

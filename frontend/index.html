@@ -112,7 +112,7 @@
     </div>
 
     <!-- Logs Modal -->
-    <div class="modal fade" id="logsModal" tabindex="-1" aria-labelledby="logsModalLabel" aria-hidden="true">
+    <!-- <div class="modal fade" id="logsModal" tabindex="-1" aria-labelledby="logsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -123,7 +123,27 @@
                     <div class="search-container"> <input type="text" id="logSearch" class="form-control"
                             placeholder="Search logs..."> </div>
                     <pre
-                        id="logsModalBody"> <!-- Example log entry --> <span class="log-timestamp">2024-12-08 05:17:00</span> INFO: Starting Kubernetes pod... </pre>
+                        id="logsModalBody">  <span class="log-timestamp">2024-12-08 05:17:00</span> INFO: Starting Kubernetes pod... </pre>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+    <div class="modal fade" id="logsModal" tabindex="-1" role="dialog" aria-labelledby="logsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logsModalLabel">Pod Logs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                    <div class="modal-body">
+                        <div class="search-container"> <input type="text" id="logSearch" class="form-control"
+                                placeholder="Search logs..."> </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- Download button will be appended here -->
                 </div>
             </div>
         </div>

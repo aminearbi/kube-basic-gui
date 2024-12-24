@@ -99,15 +99,44 @@ function fetchStatefulSetPods(namespace, name) {
     });
 }
 
-function fetchPodLogs(namespace, name) {
-    $.get(`/pod-logs/${namespace}/${name}`, function (data) {
+// function fetchPodLogs(namespace, name) {
+//     console.log(`Fetching logs for pod ${name} in namespace ${namespace}`);
+//     $.get(`/logs/${namespace}/${podName}`, function(data) {
+//         console.log('Pod Logs:', data);
+//         const logs = data.logs;
+//         const logsPre = $('<pre></pre>').text(logs);
+//         $('#logsModalBody').html(logsPre);
+//         $('#logsModal').modal('show');
+//     }).fail(function () {
+//         console.error('Failed to fetch pod logs');
+//     });
+// }
+
+function fetchPodLogs(namespace, podName) {
+    console.log(`Fetching logs for pod ${podName} in namespace ${namespace}`);
+    $.get(`/pod-logs/${namespace}/${podName}`, function(data) {
         console.log('Pod Logs:', data);
-        const logs = data.logs;
-        const logsPre = $('<pre></pre>').text(logs);
-        $('#logsModalBody').html(logsPre);
-        $('#logsModal').modal('show');
-    }).fail(function () {
-        console.error('Failed to fetch pod logs');
+        const logsModal = $('#logsModal');
+        logsModal.find('.modal-body').empty().append(`<pre>${data.logs}</pre>`);
+        const downloadButton = $('<button class="btn btn-primary">Download Logs</button>');
+        downloadButton.on('click', function() {
+            const blob = new Blob([data.logs], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${podName}-logs.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+        logsModal.find('.modal-footer').empty().append(downloadButton);
+        logsModal.modal('show');
+    }).fail(function(jqXHR) {
+        console.error('Failed to fetch pod logs', jqXHR);
+        const logsModal = $('#logsModal');
+        logsModal.find('.modal-body').empty().append(`<pre>Error: ${jqXHR.responseJSON.error}</pre>`);
+        logsModal.modal('show');
     });
 }
 

@@ -24,9 +24,10 @@
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 main">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4>Resources <span id="currentNamespace">: default</span></h4>
-                    <button id="themeButton" class="btn btn-outline-secondary" onclick="toggleTheme()">Switch to
-                        Alternative Theme</button>
-                    <button id="eventsButton" class="btn btn-outline-secondary" onclick="toggleEventsSidebar()">Show Events</button>
+                    <div class="btn-group" role="group" aria-label="Theme and Events">
+                        <button id="themeButton" class="btn btn-outline-secondary" onclick="toggleTheme()">Switch to Alternative Theme</button>
+                        <button id="eventsButton" class="btn btn-outline-secondary" onclick="toggleEventsSidebar()">Show Events</button>
+                    </div>
                 </div>
                 <div class="btn-group" role="group" aria-label="Resource Selection">
                     <button type="button" class="btn btn-outline-primary"
@@ -112,23 +113,6 @@
     </div>
 
     <!-- Logs Modal -->
-    <!-- <div class="modal fade" id="logsModal" tabindex="-1" aria-labelledby="logsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="logsModalLabel">Pod Logs</h5> <button type="button" class="close"
-                        data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
-                </div>
-                <div class="modal-body">
-                    <div class="search-container"> <input type="text" id="logSearch" class="form-control"
-                            placeholder="Search logs..."> </div>
-                    <pre
-                        id="logsModalBody">  <span class="log-timestamp">2024-12-08 05:17:00</span> INFO: Starting Kubernetes pod... </pre>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
     <div class="modal fade" id="logsModal" tabindex="-1" role="dialog" aria-labelledby="logsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -138,9 +122,11 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                    <div class="modal-body">
-                        <div class="search-container"> <input type="text" id="logSearch" class="form-control"
-                                placeholder="Search logs..."> </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input type="text" id="logSearchInput" class="form-control" placeholder="Search logs...">
+                    </div>
+                    <pre id="logContent" style="white-space: pre-wrap;"></pre>
                 </div>
                 <div class="modal-footer">
                     <!-- Download button will be appended here -->
@@ -148,6 +134,7 @@
             </div>
         </div>
     </div>
+
 
 <!-- Modal for Displaying Related Jobs -->
 <div class="modal fade" id="relatedJobsModal" tabindex="-1" aria-labelledby="relatedJobsModalLabel" aria-hidden="true">

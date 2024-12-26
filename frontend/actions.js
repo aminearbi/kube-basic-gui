@@ -99,32 +99,21 @@ function fetchStatefulSetPods(namespace, name) {
     });
 }
 
-// function fetchPodLogs(namespace, name) {
-//     console.log(`Fetching logs for pod ${name} in namespace ${namespace}`);
-//     $.get(`/logs/${namespace}/${podName}`, function(data) {
-//         console.log('Pod Logs:', data);
-//         const logs = data.logs;
-//         const logsPre = $('<pre></pre>').text(logs);
-//         $('#logsModalBody').html(logsPre);
-//         $('#logsModal').modal('show');
-//     }).fail(function () {
-//         console.error('Failed to fetch pod logs');
-//     });
-// }
-
 function fetchPodLogs(namespace, podName) {
     console.log(`Fetching logs for pod ${podName} in namespace ${namespace}`);
     $.get(`/pod-logs/${namespace}/${podName}`, function(data) {
-        console.log('Pod Logs:', data);
+        console.log('Pod Logs:', data.logs);
         const logsModal = $('#logsModal');
-        logsModal.find('.modal-body').empty().append(`<pre>${data.logs}</pre>`);
+        logsModal.find('#logContent').text(data.logs);
         const downloadButton = $('<button class="btn btn-primary">Download Logs</button>');
         downloadButton.on('click', function() {
             const blob = new Blob([data.logs], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${podName}-logs.txt`;
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const filename = `${podName}-logs-${timestamp}.txt`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -132,10 +121,17 @@ function fetchPodLogs(namespace, podName) {
         });
         logsModal.find('.modal-footer').empty().append(downloadButton);
         logsModal.modal('show');
+
+        $('#logSearchInput').on('input', function() {
+            const searchTerm = $(this).val().toLowerCase();
+            const logContent = $('#logContent').text();
+            const highlightedContent = logContent.replace(new RegExp(searchTerm, 'gi'), match => `<mark>${match}</mark>`);
+            $('#logContent').html(highlightedContent);
+        });
     }).fail(function(jqXHR) {
         console.error('Failed to fetch pod logs', jqXHR);
         const logsModal = $('#logsModal');
-        logsModal.find('.modal-body').empty().append(`<pre>Error: ${jqXHR.responseJSON.error}</pre>`);
+        logsModal.find('#logContent').text(`Error: ${jqXHR.responseJSON.error}`);
         logsModal.modal('show');
     });
 }

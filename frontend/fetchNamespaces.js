@@ -1,5 +1,8 @@
 $(document).ready(function() {
     fetchNamespaces();
+    $('#namespaceSearch').on('input', function() {
+        filterNamespaces();
+    });
 });
 
 function fetchNamespaces() {
@@ -11,7 +14,7 @@ function fetchNamespaces() {
         namespaces.forEach(namespace => {
             const listItem = $('<li class="list-group-item"></li>').text(namespace);
             listItem.click(function() {
-                fetchResources(namespace);
+                onNamespaceClick(namespace);
             });
             namespacesList.append(listItem);
         });
@@ -20,9 +23,6 @@ function fetchNamespaces() {
     });
 }
 
-function updateNamespaceDisplay(namespace) {
-    $('#currentNamespace').text(`:${namespace}`);
-}
 
 function filterNamespaces() {
     const searchValue = $('#namespaceSearch').val().toLowerCase();
@@ -36,10 +36,12 @@ function filterNamespaces() {
     });
 }
 
-$(document).ready(function() {
-    fetchNamespaces();
 
-    $('#namespaceSearch').on('input', function() {
-        filterNamespaces();
-    });
-});
+function getNamespace() {
+    return localStorage.getItem('selectedNamespace') || 'default';
+}
+
+function onNamespaceClick(namespace) {
+    updateNamespaceDisplay(namespace);
+    fetchResources();
+}

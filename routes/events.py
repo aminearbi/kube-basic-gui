@@ -1,21 +1,30 @@
 import logging
-from flask import Blueprint, jsonify
-from kubernetes_client import get_core_v1_api
+from flask import Blueprint, jsonify, Response, stream_with_context
+from kubernetes import client, config, watch
+import json
+from datetime import datetime
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 events_bp = Blueprint('events', __name__)
 
-@events_bp.route('/events/<namespace>')
-def get_namespace_events(namespace):
-    logger.info(f'Fetching events for namespace: {namespace}')
-    try:
-        v1 = get_core_v1_api()
-        events = v1.list_namespaced_event(namespace).items
-        event_list = [{'name': event.metadata.name, 'message': event.message, 'type': event.type, 'reason': event.reason, 'timestamp': event.last_timestamp} for event in events]
-        logger.info(f'Successfully fetched {len(event_list)} events for namespace: {namespace}')
-        return jsonify({'events': event_list})
-    except Exception as e:
-        logger.error(f'Error fetching events for namespace {namespace}: {e}')
-        return jsonify({'error': str(e)}), 500
+def datetime_converter(o):
+    if isinstance(o, datetime):
+        return o.isoformat()
+    return o
+
+@events_bp.route('/events/<namespace>', methods=['GET'])
+def stream_events(namespace):
+    logger.info(f'Streaming events for namespace: {namespace}')
+    def generate():
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+        w = watch.Watch()
+        for event in w.stream(v1.list_namespaced_event, namespace=namespace):
+            event_dict = event['object'].to_dict()
+            event_dict['first_timestamp'] = event['object'].first_timestamp
+            event_dict['lastTimestamp'] = event['object'].last_timestamp
+            yield f"data: {json.dumps(event_dict, default=datetime_converter)}\n\n"
+
+    return Response(stream_with_context(generate()), content_type='text/event-stream')

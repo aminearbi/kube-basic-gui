@@ -10,6 +10,7 @@ from routes.events import events_bp
 from routes.cronjobs import cronjobs_bp
 from routes.jobs import jobs_bp
 
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,6 +29,7 @@ app.register_blueprint(pods_bp)
 app.register_blueprint(events_bp)
 app.register_blueprint(cronjobs_bp)
 app.register_blueprint(jobs_bp)
+
 
 @app.route('/')
 def serve_frontend():

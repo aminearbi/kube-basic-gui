@@ -1,20 +1,20 @@
 let currentNamespace = '';
 let podsInterval;
-let eventsInterval;
+let eventsSource;
+let eventsArray = [];
 
-function fetchResources(namespace) {
+function fetchResources() {
+    const namespace = getNamespace();
+    console.log(`Fetching resources for namespace: ${namespace}`);
     updateNamespaceDisplay(namespace);
     currentNamespace = namespace;
-    $('#deployments-section').empty();
-    $('#statefulsets-section').empty();
-    $('#cronjobs-section').empty();
-    $('#pods-section').empty();
-    $('#pvcs-section').empty();
-    fetchDeployments(namespace); // Fetch Deployments first
-    fetchStatefulSets(namespace); // Fetch StatefulSets second
-    fetchCronJobs(namespace); // Fetch CronJobs third
-    fetchAllPods(namespace, 1); // Start with page 1
-    fetchPVCs(namespace); // Fetch PVCs
+    clearSections();
+    fetchDeployments(); // Fetch Deployments first
+    fetchStatefulSets(); // Fetch StatefulSets second
+    fetchCronJobs(); // Fetch CronJobs third
+    fetchAllPods(1); // Start with page 1
+    fetchPVCs(); // Fetch PVCs
+    startEventStream(namespace); // Start event stream
 
     // Clear any existing interval
     if (podsInterval) {
@@ -23,21 +23,66 @@ function fetchResources(namespace) {
 
     // Set up periodic update for the pods table
     podsInterval = setInterval(function() {
-        fetchAllPods(currentNamespace, 1);
+        fetchAllPods(1);
     }, 30000); // Update every 30 seconds
-
-    // Clear any existing events interval
-    if (eventsInterval) {
-        clearInterval(eventsInterval);
-    }
-
-    // Set up periodic update for the events
-    eventsInterval = setInterval(function() {
-        fetchEvents(currentNamespace);
-    }, 10000); // Update every 10 seconds
+}
+function clearSections() {
+    $('#deployments-section').empty();
+    $('#statefulsets-section').empty();
+    $('#cronjobs-section').empty();
+    $('#pods-section').empty();
+    $('#pvcs-section').empty();
+    $('#events-section tbody').empty();
 }
 
-function fetchPVCs(namespace) {
+
+function startEventStream(namespace) {
+    if (eventsSource) {
+        eventsSource.close();
+    }
+
+    eventsSource = new EventSource(`/events/${namespace}`);
+    eventsSource.onmessage = function(event) {
+        const eventData = JSON.parse(event.data);
+        updateEventsTable(eventData);
+    };
+
+    eventsSource.onerror = function(error) {
+        console.error('Error in event stream:', error);
+        eventsSource.close();
+    };
+}
+
+function updateEventsTable(event) {
+    const eventsList = $('#eventsList');
+    const first_timestamp = new Date(event.first_timestamp).toLocaleString('en-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        timeZoneName: 'short'
+    });
+    const eventRow = `
+        <tr>
+            <td>${event.type}</td>
+            <td>${event.reason}</td>
+            <td>${event.message}</td>
+            <td>${first_timestamp}</td>
+            <td>${event.involved_object.kind}</td>
+            <td>${event.involved_object.name}</td>
+        </tr>
+    `;
+    eventsList.append(eventRow);
+}
+
+
+
+function fetchPVCs() {
+    const namespace = getNamespace();
+    console.log(`Fetching PVCs for namespace: ${namespace}`);
     $.get(`/pvcs/${namespace}`, function(data) {
         console.log('PVCs:', data);
         const pvcs = data.pvcs;
@@ -57,14 +102,14 @@ function fetchPVCs(namespace) {
             pvcsBody.append(pvcRow);
         });
         pvcsTable.append(pvcsBody);
-        $('#pvcs-section').append('<h5>Persistent Volume Claims (PVCs)</h5>').append(pvcsTable);
+        $('#pvcs-section').html('<h5>Persistent Volume Claims</h5>').append(pvcsTable); // Update only the PVCs section
     }).fail(function() {
         console.error('Failed to fetch PVCs');
     });
 }
 
-
-function fetchDeployments(namespace) {
+function fetchDeployments() {
+    const namespace = getNamespace();
     $.get(`/deployments/${namespace}`, function(data) {
         console.log('Deployments:', data);
         const deployments = data.deployments;
@@ -92,7 +137,8 @@ function fetchDeployments(namespace) {
     });
 }
 
-function fetchStatefulSets(namespace) {
+function fetchStatefulSets() {
+    const namespace = getNamespace();
     $.get(`/statefulsets/${namespace}`, function(data) {
         console.log('StatefulSets:', data);
         const statefulsets = data.statefulsets;
@@ -120,7 +166,8 @@ function fetchStatefulSets(namespace) {
     });
 }
 
-function fetchCronJobs(namespace) {
+function fetchCronJobs() {
+    const namespace = getNamespace();
     console.log(`Fetching cronjobs for namespace: ${namespace}`);
     $.get(`/cronjobs/${namespace}`, function(data) {
         console.log('CronJobs:', data);
@@ -187,7 +234,8 @@ function continueCronJob(namespace, name) {
     });
 }
 
-function fetchAllPods(namespace, page) {
+function fetchAllPods(page) {
+    const namespace = getNamespace();
     $.get(`/pods/${namespace}?page=${page}`, function(data) {
         console.log('All Pods:', data);
         const pods = data.pods;
@@ -219,7 +267,7 @@ function fetchAllPods(namespace, page) {
         for (let i = 1; i <= totalPages; i++) {
             const pageItem = $(`<li class="page-item ${i === page ? 'active' : ''}"><a class="page-link" href="#">${i}</a></li>`);
             pageItem.on('click', function() {
-                fetchAllPods(namespace, i);
+                fetchAllPods(i);
             });
             paginationList.append(pageItem);
         }
@@ -265,35 +313,33 @@ function submitScaleModal() {
     submitScale(namespace, name, replicas, type);
 }
 
-function fetchEvents(namespace) {
-    console.log(`Fetching events for namespace: ${namespace}`);
-    $.get(`/events/${namespace}`, function(data) {
-        console.log('Events data:', data);
-        const eventsList = $('#eventsList');
-        eventsList.empty();
-        data.events.forEach(event => {
-            eventsList.append(`<li>${event.timestamp}: ${event.message}</li>`);
-        });
-    }).fail(function() {
-        console.error('Failed to fetch events');
+function updateNamespaceDisplay(namespace) {
+    // Save the selected namespace to localStorage
+    localStorage.setItem('selectedNamespace', namespace);
+    console.log(`Namespace ${namespace} saved to localStorage`);
+
+    // Update the display or perform other actions as needed
+    $('#currentNamespace').text(`: ${namespace}`);
+
+    // Start event stream
+    startEventStream(namespace);
+}
+
+
+// Example usage: Attach click event listener to namespace elements
+$(document).ready(function() {
+    $('#namespaces').on('click', 'li', function() {
+        const namespace = $(this).text();
     });
-}
 
-function startFetchingEvents() {
-    const namespace = $('#namespaces').val();
-    fetchEvents(namespace);
-    eventsInterval = setInterval(function() {
-        fetchEvents(namespace);
-    }, 10000);
-}
+    // Load namespace on page load
+    const namespace = getNamespace();
+    updateNamespaceDisplay(namespace);
+});
 
-function stopFetchingEvents() {
-    clearInterval(eventsInterval);
-}
 
 $(document).ready(function () {
     showSection('deployments-section'); // Show deployments section by default
-    loadNamespace(); // Load the last selected namespace
 
     // Load the saved theme
     var savedTheme = localStorage.getItem('theme');
@@ -311,11 +357,5 @@ $(document).ready(function () {
         $('#logsModalBody').html(function (_, html) {
             return html.replace(/<mark>/g, '').replace(/<\/mark>/g, '');
         });
-        if (searchTerm) {
-            $('#logsModalBody').html(function (_, html) {
-                var regex = new RegExp('(' + searchTerm + ')', 'gi');
-                return html.replace(regex, '<mark>$1</mark>');
-            });
-        }
     });
 });

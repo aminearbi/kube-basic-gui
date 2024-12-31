@@ -9,6 +9,7 @@ This project provides a web-based GUI for managing Kubernetes resources such as 
 - View and manage Persistent Volume Claims (PVCs)
 - View and manage CronJobs, including editing schedules and creating Jobs from CronJobs
 - View and delete Pods
+- View qnd Download logs
 - Stream and view Kubernetes events
 
 ## Prerequisites

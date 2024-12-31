@@ -16,15 +16,20 @@ def datetime_converter(o):
 
 @events_bp.route('/events/<namespace>', methods=['GET'])
 def stream_events(namespace):
-    logger.info(f'Streaming events for namespace: {namespace}')
+    logger.info(f'Starting to stream events for namespace: {namespace}')
     def generate():
         config.load_kube_config()
         v1 = client.CoreV1Api()
         w = watch.Watch()
-        for event in w.stream(v1.list_namespaced_event, namespace=namespace):
-            event_dict = event['object'].to_dict()
-            event_dict['first_timestamp'] = event['object'].first_timestamp
-            event_dict['lastTimestamp'] = event['object'].last_timestamp
-            yield f"data: {json.dumps(event_dict, default=datetime_converter)}\n\n"
+        try:
+            for event in w.stream(v1.list_namespaced_event, namespace=namespace):
+                event_dict = event['object'].to_dict()
+                event_dict['event_time'] = event['object'].first_timestamp
+                logger.info(f"Streaming event: {event_dict['type']} - {event_dict['reason']} - {event_dict['message']}")
+                yield f"data: {json.dumps(event_dict, default=datetime_converter)}\n\n"
+        except Exception as e:
+            logger.error(f"Error streaming events: {e}")
+        finally:
+            logger.info(f"Stopped streaming events for namespace: {namespace}")
 
     return Response(stream_with_context(generate()), content_type='text/event-stream')

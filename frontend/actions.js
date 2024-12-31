@@ -103,8 +103,14 @@ function fetchPodLogs(namespace, podName) {
     console.log(`Fetching logs for pod ${podName} in namespace ${namespace}`);
     $.get(`/pod-logs/${namespace}/${podName}`, function(data) {
         console.log('Pod Logs:', data.logs);
+        const logContent = $('#logContent');
         const logsModal = $('#logsModal');
-        logsModal.find('#logContent').text(data.logs);
+        logContent.css({
+            'white-space': 'pre-wrap',
+            'word-wrap': 'break-word',
+            'overflow-wrap': 'break-word'
+        }).text(data.log);
+        logsModal.find('#logContent').css('white-space', 'pre-wrap').text(data.logs);
         const downloadButton = $('<button class="btn btn-primary">Download Logs</button>');
         downloadButton.on('click', function() {
             const blob = new Blob([data.logs], { type: 'text/plain' });

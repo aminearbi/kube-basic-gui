@@ -86,7 +86,7 @@ function fetchPVCs() {
     $.get(`/pvcs/${namespace}`, function(data) {
         console.log('PVCs:', data);
         const pvcs = data.pvcs;
-        const pvcsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>Status</th><th>Capacity</th><th>Access Modes</th><th>Storage Class</th></tr></thead>');
+        const pvcsTable = $('<table class="table table-striped"></table>').append('<thead><tr><th>Name</th><th>Status</th><th>Capacity</th><th>Access Modes</th><th>Storage Class</th><th>Actions</th></tr></thead>');
         const pvcsBody = $('<tbody></tbody>');
         pvcs.forEach(pvc => {
             const accessModes = pvc.access_modes ? pvc.access_modes.join(', ') : 'N/A';
@@ -97,6 +97,10 @@ function fetchPVCs() {
                     <td>${pvc.capacity}</td>
                     <td>${accessModes}</td>
                     <td>${pvc.storage_class}</td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="fetchPVCContent('${namespace}', '${pvc.name}')">View Content</button>
+                        <button class="btn btn-secondary btn-sm" onclick="fetchPVCFiles('${namespace}', '${pvc.name}')">View Files</button>
+                    </td>
                 </tr>
             `);
             pvcsBody.append(pvcRow);
@@ -106,6 +110,70 @@ function fetchPVCs() {
     }).fail(function() {
         console.error('Failed to fetch PVCs');
     });
+}
+
+function fetchPVCContent(namespace, pvcName) {
+    console.log(`Fetching content for PVC ${pvcName} in namespace ${namespace}`);
+    $.get(`/pvcs/${namespace}/${pvcName}/content`, function(data) {
+        console.log('PVC Content:', data.pvc_content);
+        const pvcContent = data.pvc_content;
+        const contentModal = $('#contentModal');
+        const contentBody = $('#contentBody');
+        contentBody.empty();
+        contentBody.append(`
+            <p><strong>Name:</strong> ${pvcContent.name}</p>
+            <p><strong>Namespace:</strong> ${pvcContent.namespace}</p>
+            <p><strong>Access Modes:</strong> ${pvcContent.access_modes.join(', ')}</p>
+            <p><strong>Storage Class:</strong> ${pvcContent.storage_class}</p>
+            <p><strong>Capacity:</strong> ${pvcContent.capacity}</p>
+            <p><strong>Status:</strong> ${pvcContent.status}</p>
+            <p><strong>Volume Name:</strong> ${pvcContent.volume_name}</p>
+        `);
+        contentModal.modal('show');
+    }).fail(function() {
+        console.error('Failed to fetch PVC content');
+    });
+}
+
+function fetchPVCFiles(namespace, pvcName) {
+    console.log(`Fetching files for PVC ${pvcName} in namespace ${namespace}`);
+    const filesModal = $('#filesModal');
+    const filesBody = $('#filesBody');
+    filesBody.empty();
+
+    // Ensure the jQuery File Tree plugin is loaded
+    if (typeof $.fn.fileTree === 'function') {
+        // Initialize jQuery File Tree
+        filesBody.fileTree({
+            root: '/',
+            script: `/pvcs/${namespace}/${pvcName}/files`,
+            expandSpeed: 500,
+            collapseSpeed: 500,
+            multiFolder: false,
+            method: 'GET'
+        }, function(file) {
+            console.log(`Selected file: ${file}`);
+            // Handle file selection (e.g., delete file)
+        });
+
+        filesModal.modal('show');
+
+        // Delete the pod when the modal is closed
+        filesModal.on('hidden.bs.modal', function() {
+            $.ajax({
+                url: `/pvcs/${namespace}/${pvcName}/delete-pod`,
+                type: 'DELETE',
+                success: function(result) {
+                    console.log('Pod deleted successfully');
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error('Failed to delete pod', textStatus, errorThrown);
+                }
+            });
+        });
+    } else {
+        console.error('jQuery File Tree plugin is not loaded.');
+    }
 }
 
 function fetchDeployments() {

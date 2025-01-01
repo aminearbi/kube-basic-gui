@@ -154,3 +154,22 @@ body {
         margin-bottom: 10px;
     }
 }
+
+.file-tree {
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+.file-tree li {
+    margin: 5px 0;
+}
+
+.file-tree .folder {
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.file-tree .file {
+    display: flex;
+    align-items: center;
+}
